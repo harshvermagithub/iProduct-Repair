@@ -57,6 +57,21 @@ export async function addZonalHead(email: string) {
     return { success: true };
 }
 
+export async function addRelationshipManager(email: string) {
+    await requireAdmin();
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await db.findUserByEmail(cleanEmail);
+    if (!user) return { success: false, error: 'User not found. They must register first.' };
+
+    await prisma.user.update({
+        where: { id: user.id },
+        data: { role: 'RELATIONSHIP_MANAGER' }
+    });
+    revalidatePath('/admin/admins');
+    revalidatePath('/admin/relationship-managers');
+    return { success: true };
+}
+
 export async function addPartner(email: string, cityId?: string, managerId?: string) {
     await requireAdmin();
     const cleanEmail = email.trim().toLowerCase();
@@ -112,14 +127,14 @@ export async function updateCityDisplayOrder(id: string, order: number) {
 async function requireZonalOrAdmin() {
     const session = await getSession();
     if (!session || !session.user) throw new Error('Unauthorized');
-    const roles = ['SUPER_ADMIN', 'ADMIN', 'ZONAL_HEAD'];
+    const roles = ['SUPER_ADMIN', 'ADMIN', 'ZONAL_HEAD', 'RELATIONSHIP_MANAGER'];
     if (!roles.includes(session.user.role || '')) throw new Error('Forbidden: Admin or Zonal Head access required');
 }
 
 async function requirePartnerOrAbove() {
     const session = await getSession();
     if (!session || !session.user) throw new Error('Unauthorized');
-    const roles = ['SUPER_ADMIN', 'ADMIN', 'ZONAL_HEAD', 'PARTNER'];
+    const roles = ['SUPER_ADMIN', 'ADMIN', 'ZONAL_HEAD', 'RELATIONSHIP_MANAGER', 'PARTNER'];
     if (!roles.includes(session.user.role || '')) throw new Error('Forbidden: Insufficient privileges');
 }
 
@@ -208,6 +223,7 @@ export async function removeUserRole(email: string) {
     revalidatePath('/admin');
     revalidatePath('/admin/admins');
     revalidatePath('/admin/zonal-heads');
+    revalidatePath('/admin/relationship-managers');
     revalidatePath('/admin/partners');
     revalidatePath('/admin/riders');
     revalidatePath('/admin/orders');

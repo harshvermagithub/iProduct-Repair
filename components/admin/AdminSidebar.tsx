@@ -48,12 +48,14 @@ export default function AdminSidebar({ role = 'SUPER_ADMIN' }: { role?: string }
     const [isInventoryOpen, setIsInventoryOpen] = useState(false);
 
     const dashboardTitle = role === 'ZONAL_HEAD' ? 'Zonal Head' :
+        role === 'RELATIONSHIP_MANAGER' ? 'RM' :
         role === 'FIELD_EXECUTIVE' ? 'Field Executive' :
         ['SUPER_ADMIN', 'ADMIN'].includes(role) ? 'Admin' :
             'Partner';
 
     const isPrivileged = ['SUPER_ADMIN', 'ADMIN'].includes(role);
     const isZonal = role === 'ZONAL_HEAD';
+    const isRM = role === 'RELATIONSHIP_MANAGER';
     const isPartner = role === 'PARTNER';
     const isRider = role === 'FIELD_EXECUTIVE';
     const isMobileOnlyRole = role === 'FIELD_EXECUTIVE';
@@ -194,6 +196,13 @@ export default function AdminSidebar({ role = 'SUPER_ADMIN' }: { role?: string }
                         </>
                     )}
 
+                    {isRM && (
+                        <>
+                            {renderSectionTitle('RM Overview')}
+                            {renderLink('/admin/rm-dashboard', 'RM Dashboard', LayoutDashboard, pathname.includes('/admin/rm-dashboard'))}
+                        </>
+                    )}
+
                     {(isPrivileged || isZonal) && (
                         <>
                             {renderSectionTitle('Hierarchy')}
@@ -205,15 +214,15 @@ export default function AdminSidebar({ role = 'SUPER_ADMIN' }: { role?: string }
                         renderLink('/admin/zonal-heads', 'Zonal Heads', Briefcase, pathname.includes('/admin/zonal-heads'))
                     )}
 
-                    {(isPrivileged || isZonal) && (
+                    {(isPrivileged || isRM || isZonal) && (
                         renderLink('/admin/partners', 'Partners', Building2, pathname.includes('/admin/partners'))
                     )}
 
                     {renderSectionTitle('Logistics')}
-                    {(isPrivileged || isZonal || isPartner) && renderLink('/admin/riders', 'Field Executives', Users, pathname.includes('riders'))}
+                    {(isPrivileged || isZonal || isRM || isPartner) && renderLink('/admin/riders', 'Field Executives', Users, pathname.includes('riders'))}
                     {renderLink('/admin/orders', (isRider ? 'My Pickups' : 'Orders'), ShoppingCart, pathname.includes('orders'))}
 
-                    {(isPrivileged || isZonal || isPartner || isRider) && (
+                    {(isPrivileged || isZonal || isRM || isPartner || isRider) && (
                         <>
                             {renderSectionTitle('Communication')}
                             {renderLink('/admin/email', 'Email System', Mail, pathname.includes('/admin/email'))}

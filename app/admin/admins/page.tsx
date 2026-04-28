@@ -15,6 +15,7 @@ export default async function AdminsPage() {
     const superAdmins = allUsers.filter(u => u.role === 'SUPER_ADMIN');
     const admins = allUsers.filter(u => u.role === 'ADMIN');
     const zonalHeads = allUsers.filter(u => u.role === 'ZONAL_HEAD');
+    const relationshipManagers = allUsers.filter(u => u.role === 'RELATIONSHIP_MANAGER');
     const partners = allUsers.filter(u => u.role === 'PARTNER');
     
     // Combine native riders with users granted FIELD_EXECUTIVE privilege
@@ -39,6 +40,7 @@ export default async function AdminsPage() {
                 superAdmins={superAdmins}
                 admins={admins}
                 zonalHeads={zonalHeads}
+                relationshipManagers={relationshipManagers}
                 partners={partners}
                 riders={combinedRiders}
             />

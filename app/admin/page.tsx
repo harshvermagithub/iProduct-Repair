@@ -19,6 +19,10 @@ export default async function AdminDashboard() {
         redirect('/admin/orders');
     }
 
+    if (role === 'RELATIONSHIP_MANAGER') {
+        redirect('/admin/rm-dashboard');
+    }
+
     const brands = await db.getBrands();
     const models = await db.getModels();
     const variants = await db.getVariants();
