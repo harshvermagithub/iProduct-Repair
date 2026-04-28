@@ -5,6 +5,7 @@ import { addAdmin, addZonalHead, addRelationshipManager, addPartner, addFieldExe
 import { Trash2, Plus, Loader2, ShieldCheck, Mail, Briefcase, Building2, Users, Crown, Phone, UserCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+export default function AdminManager({
     superAdmins,
     admins,
     zonalHeads,
