@@ -40,7 +40,7 @@ export default async function RMDashboard() {
         
         // Orders delayed by > 5 minutes
         const delayedOrders = unassignedOrders.filter(o => {
-            const diffMinutes = (now.getTime() - new Date(o.createdAt).getTime()) / 1000 / 60;
+            const diffMinutes = (now.getTime() - new Date(o.date).getTime()) / 1000 / 60;
             return diffMinutes >= 5;
         });
 
