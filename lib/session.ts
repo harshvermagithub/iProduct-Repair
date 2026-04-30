@@ -4,7 +4,11 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { SessionPayload } from './auth-utils';
 
-const KEY = new TextEncoder().encode(process.env.AUTH_SECRET || 'secret_key_123');
+const secret = process.env.AUTH_SECRET;
+if (!secret) {
+    console.warn('⚠️ AUTH_SECRET is not set. Session features will not work correctly.');
+}
+const KEY = new TextEncoder().encode(secret || 'temporary_dev_key_change_me_in_production');
 
 export async function encrypt(payload: any) {
     return await new SignJWT(payload)

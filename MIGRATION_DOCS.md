@@ -128,7 +128,7 @@ image: supabase/postgres:15.1.0.117
 ports: "5432:5432"
 volume: supabase_db_data  # persisted named volume
 ```
-- Password: `skillhancer_db_pass`
+- Password: `[CONFIGURED_IN_COOLIFY]`
 - Database: `postgres`
 
 #### `supabase-kong` — API Gateway
@@ -142,7 +142,7 @@ ports: "8081:8000"  # 8081 used to avoid conflict with Coolify's port 8000
 ```yaml
 image: supabase/gotrue:v2.132.3
 ```
-- JWT Secret: `skillhancer_jwt_secret`
+- JWT Secret: `[CONFIGURED_IN_COOLIFY]`
 - Email OTP: Disabled (`GOTRUE_EXTERNAL_EMAIL_ENABLED: "false"`) during initial setup to bypass SMTP requirement
 - To enable email OTP later: configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` and set `GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"`
 
@@ -231,8 +231,8 @@ docker run -d \
   --network host \
   -e PORT=3002 \
   -e SUPABASE_SERVICE_ROLE_KEY=<local-service-role-jwt> \
-  -e POSTGRES_PRISMA_URL=postgresql://postgres:skillhancer_db_pass@localhost:5432/postgres \
-  -e POSTGRES_URL_NON_POOLING=postgresql://postgres:skillhancer_db_pass@localhost:5432/postgres \
+  -e DATABASE_URL=postgresql://postgres:[CONFIGURED_IN_COOLIFY]@localhost:5432/postgres \
+  -e DIRECT_URL=postgresql://postgres:[CONFIGURED_IN_COOLIFY]@localhost:5432/postgres \
   fonzkart-frontend
 ```
 
@@ -261,7 +261,7 @@ This reduced the Docker build context from **~1.15 GB** down to **~210 MB**.
 | Variable | Value | Notes |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | `http://localhost:8081` | Points to local Kong gateway |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | *(local anon JWT)* | Generated with `scripts/gen_jwt.py` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | *(local anon JWT)* | Generated with local tools |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3002` | Frontend URL |
 
 > ⚠️ These **cannot** be changed at runtime. A rebuild is required to change them.
@@ -272,14 +272,6 @@ This reduced the Docker build context from **~1.15 GB** down to **~210 MB**.
 |---|---|---|
 | `NODE_ENV` | `production` | Set in Dockerfile |
 | `PORT` | `3002` | Frontend port |
-| `SUPABASE_SERVICE_ROLE_KEY` | *(local service_role JWT)* | Used by `lib/supabase.ts` for OTP |
-| `POSTGRES_PRISMA_URL` | `postgresql://postgres:skillhancer_db_pass@localhost:5432/postgres` | Prisma connection pool |
-| `POSTGRES_URL_NON_POOLING` | `postgresql://postgres:skillhancer_db_pass@localhost:5432/postgres` | Prisma direct connection |
-| `SUPABASE_JWT_SECRET` | `skillhancer_jwt_secret` | Must match GoTrue config |
-
-### Generating Local JWT Tokens
-
-Use the provided script to regenerate JWTs if the secret changes:
 
 ```bash
 python3 scripts/gen_jwt.py
@@ -451,8 +443,8 @@ docker run -d \
   --network host \
   -e PORT=3002 \
   -e SUPABASE_SERVICE_ROLE_KEY=$(python3 scripts/gen_jwt.py | grep service_role | cut -d' ' -f2) \
-  -e POSTGRES_PRISMA_URL="postgresql://postgres:skillhancer_db_pass@localhost:5432/postgres" \
-  -e POSTGRES_URL_NON_POOLING="postgresql://postgres:skillhancer_db_pass@localhost:5432/postgres" \
+  -e DATABASE_URL="postgresql://postgres:[CONFIGURED_IN_COOLIFY]@localhost:5432/postgres" \
+  -e DIRECT_URL="postgresql://postgres:[CONFIGURED_IN_COOLIFY]@localhost:5432/postgres" \
   fonzkart-frontend
 ```
 
@@ -528,11 +520,11 @@ environment:
 
 ## 11. Security Checklist
 
-- [ ] **Change default DB password** — `POSTGRES_PASSWORD: skillhancer_db_pass` must be changed in production. Update in both `docker-compose.supabase.yml` and all connection string env vars.
-- [ ] **Change JWT secret** — `GOTRUE_JWT_SECRET: skillhancer_jwt_secret` must be changed. Regenerate all JWTs after changing it using `scripts/gen_jwt.py`.
+- [ ] **Change default DB password** — `POSTGRES_PASSWORD: [CONFIGURED_IN_COOLIFY]` must be changed in production. Update in both `docker-compose.supabase.yml` and all connection string env vars.
+- [ ] **Change JWT secret** — `GOTRUE_JWT_SECRET: [CONFIGURED_IN_COOLIFY]` must be changed. Regenerate all JWTs after changing it using `scripts/gen_jwt.py`.
 - [ ] **Firewall rules** — Ensure ports `5432` (Postgres) and `8081` (Kong) are **not** exposed to the public internet. Use firewall rules to restrict to `localhost` only.
 - [ ] **HTTPS** — Set up a domain with Coolify's built-in Let's Encrypt + Traefik for automatic TLS.
-- [ ] **Auth secret** — `AUTH_SECRET` in `lib/session.ts` falls back to `'secret_key_123'`. Set a proper random value via env var in production.
+- [ ] **Auth secret** — `AUTH_SECRET` in `lib/session.ts` falls back to `'[CONFIGURED_IN_COOLIFY]'`. Set a proper random value via env var in production.
 - [ ] **Remove debug routes** — The application has debug routes (`/api/debug-session`, `/api/debug/inspect-as`, etc.) that should be removed or access-restricted before going fully public.
 - [ ] **`.env` files** — Ensure `.env` and `.env.production` are listed in `.gitignore` and never committed to the repository.
 
