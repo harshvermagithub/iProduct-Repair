@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { questionnaireSteps } from '@/lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Check, XCircle, AlertTriangle, CheckCircle2, Smartphone } from 'lucide-react';
@@ -16,13 +16,24 @@ interface ChecklistWizardProps {
 export default function ChecklistWizard({ deviceInfo, category, onComplete, onBack }: ChecklistWizardProps) {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [answers, setAnswers] = useState<Record<string, unknown>>({});
+    const topRef = useRef<HTMLDivElement>(null);
+
+    const scrollToTop = () => {
+        if (typeof window !== 'undefined') {
+            if (topRef.current) {
+                // Adjusting the offset slightly if there is a sticky header
+                const y = topRef.current.getBoundingClientRect().top + window.scrollY - 100;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    };
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setTimeout(() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 100);
-        }
+        setTimeout(() => {
+            scrollToTop();
+        }, 100);
     }, [currentStepIndex]);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -117,13 +128,13 @@ export default function ChecklistWizard({ deviceInfo, category, onComplete, onBa
     };
 
     return (
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div ref={topRef} className="flex flex-col lg:flex-row gap-8">
             {/* Main Content Area */}
             <div className="flex-1 bg-card border rounded-2xl p-6 md:p-10 shadow-sm">
                 <h2 className="text-2xl font-bold mb-2">{currentStep.title}</h2>
                 <p className="text-muted-foreground mb-8">{currentStep.subtitle}</p>
 
-                <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                <AnimatePresence mode="wait" onExitComplete={() => scrollToTop()}>
                     <motion.div
                         key={currentStep.id}
                         initial={{ opacity: 0, x: 20 }}

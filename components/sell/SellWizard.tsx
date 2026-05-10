@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CategorySelector from './CategorySelector';
 import BrandSelector from './BrandSelector';
@@ -63,13 +63,23 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [user, setUser] = useState<any>(initialUser);
 
-    useEffect(() => {
+    const topRef = useRef<HTMLDivElement>(null);
+
+    const scrollToTop = () => {
         if (typeof window !== 'undefined') {
-            // Slight timeout ensures DOM is ready before scrolling
-            setTimeout(() => {
+            if (topRef.current) {
+                const y = topRef.current.getBoundingClientRect().top + window.scrollY - 100;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            } else {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 100);
+            }
         }
+    };
+
+    useEffect(() => {
+        setTimeout(() => {
+            scrollToTop();
+        }, 100);
     }, [step]);
 
     const handleCategorySelect = async (cat: string) => {
@@ -152,8 +162,8 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
     const quotePreviewDetails = isVariantHidden ? displayDeviceName : `${displayDeviceName} (${displayVariant})`;
 
     return (
-        <div className="w-full max-w-6xl mx-auto">
-            <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <div ref={topRef} className="w-full max-w-6xl mx-auto">
+            <AnimatePresence mode="wait" onExitComplete={() => scrollToTop()}>
                 {step === 'category' && (
                     <motion.div key="category" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                         <CategorySelector onSelect={handleCategorySelect} />
