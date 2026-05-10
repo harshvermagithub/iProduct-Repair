@@ -10,6 +10,7 @@ node_modules
 *.json
 !package.json
 !package-lock.json
+!tsconfig.json
 build_log.txt
 app_page_dump.txt
 env_dump.html
