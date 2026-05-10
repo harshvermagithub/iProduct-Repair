@@ -20,13 +20,7 @@ export default function ChecklistWizard({ deviceInfo, category, onComplete, onBa
 
     const scrollToTop = () => {
         if (typeof window !== 'undefined') {
-            if (topRef.current) {
-                // Adjusting the offset slightly if there is a sticky header
-                const y = topRef.current.getBoundingClientRect().top + window.scrollY - 100;
-                window.scrollTo({ top: y, behavior: 'smooth' });
-            } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            window.scrollTo(0, 0);
         }
     };
 
@@ -128,7 +122,7 @@ export default function ChecklistWizard({ deviceInfo, category, onComplete, onBa
     };
 
     return (
-        <div ref={topRef} className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
             {/* Main Content Area */}
             <div className="flex-1 bg-card border rounded-2xl p-6 md:p-10 shadow-sm">
                 <h2 className="text-2xl font-bold mb-2">{currentStep.title}</h2>

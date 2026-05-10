@@ -67,20 +67,48 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
 
     const scrollToTop = () => {
         if (typeof window !== 'undefined') {
-            if (topRef.current) {
-                const y = topRef.current.getBoundingClientRect().top + window.scrollY - 100;
-                window.scrollTo({ top: y, behavior: 'smooth' });
-            } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            window.scrollTo(0, 0);
         }
     };
+
+    // Sync state with URL Hash for browser back-button support
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash.replace('#', '') as Step;
+            const validSteps = ['category', 'brand', 'model', 'variant', 'quote_preview', 'checklist', 'login_check', 'final_quote'];
+            if (validSteps.includes(hash)) {
+                setStep(hash);
+            }
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        
+        // Initialize hash if missing, or sync step with hash if present
+        if (!window.location.hash) {
+            window.history.replaceState(null, '', `#${step}`);
+        } else {
+            handleHashChange();
+        }
+
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, []); // Run once on mount
 
     useEffect(() => {
         setTimeout(() => {
             scrollToTop();
         }, 100);
     }, [step]);
+
+    // Safety net: If user reloads the page on a deep hash but state is empty, push them back
+    useEffect(() => {
+        if (step === 'model' && !selectedBrand) {
+            window.location.hash = 'brand';
+        } else if ((step === 'variant' || step === 'quote_preview' || step === 'checklist') && (!selectedModel || !selectedBrand)) {
+            window.location.hash = 'brand';
+        } else if (step === 'final_quote' && category !== 'unbreakable-screenguard' && (!selectedModel || !selectedVariant)) {
+            window.location.hash = 'brand';
+        }
+    }, [step, selectedBrand, selectedModel, selectedVariant, category]);
 
     const handleCategorySelect = async (cat: string) => {
         let targetCategory = cat;
@@ -97,7 +125,7 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
             const newBrands = allBrands.filter(b => requiredBrands.includes(b.name));
             
             setBrands(newBrands);
-            setStep('brand');
+            window.location.hash = 'brand';
             return;
         } else {
             setIsRepair(false);
@@ -108,12 +136,12 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
         // Fetch brands for the selected category
         const newBrands = await fetchBrands(targetCategory);
         setBrands(newBrands);
-        setStep('brand');
+        window.location.hash = 'brand';
     };
 
     const handleBrandSelect = (brand: Brand) => {
         setSelectedBrand(brand);
-        setStep('model');
+        window.location.hash = 'model';
     };
 
     const handleModelSelect = (model: Model) => {
@@ -122,38 +150,38 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
 
         if (category === 'unbreakable-screenguard') {
             if (user) {
-                setStep('final_quote');
+                window.location.hash = 'final_quote';
             } else {
-                setStep('login_check');
+                window.location.hash = 'login_check';
             }
             return;
         }
 
-        setStep('variant');
+        window.location.hash = 'variant';
     };
 
     const handleVariantAutoSkip = (variant: Variant) => {
         setSelectedVariant(variant);
         setSkippedVariant(true);
         if (isRepair) {
-            setStep('checklist');
+            window.location.hash = 'checklist';
         } else {
-            setStep('quote_preview');
+            window.location.hash = 'quote_preview';
         }
     };
 
     const handleVariantSelect = (variant: Variant) => {
         setSelectedVariant(variant);
         if (isRepair) {
-            setStep('checklist');
+            window.location.hash = 'checklist';
         } else {
-            setStep('quote_preview');
+            window.location.hash = 'quote_preview';
         }
     };
 
     const handleLoginSuccess = (loggedInUser: any) => {
         setUser(loggedInUser);
-        setStep('final_quote');
+        window.location.hash = 'final_quote';
     };
 
     const isVariantHidden = selectedVariant && (selectedVariant.name.toLowerCase().includes('no variant') || skippedVariant);
@@ -162,7 +190,7 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
     const quotePreviewDetails = isVariantHidden ? displayDeviceName : `${displayDeviceName} (${displayVariant})`;
 
     return (
-        <div ref={topRef} className="w-full max-w-6xl mx-auto">
+        <div className="w-full max-w-6xl mx-auto">
             <AnimatePresence mode="wait" onExitComplete={() => scrollToTop()}>
                 {step === 'category' && (
                     <motion.div key="category" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
@@ -175,7 +203,13 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
                         <BrandSelector
                             brands={brands}
                             onSelect={handleBrandSelect}
-                            onBack={() => setStep('category')}
+                            onBack={() => {
+                                if (initialCategory && !initialBrandId) {
+                                    router.back();
+                                } else {
+                                    window.history.back();
+                                }
+                            }}
                         />
                     </motion.div>
                 )}
@@ -191,7 +225,7 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
                                 if (initialBrandId) {
                                     router.back();
                                 } else {
-                                    setStep('brand');
+                                    window.history.back();
                                 }
                             }}
                         />
@@ -206,7 +240,7 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
                             brand={selectedBrand}
                             onSelect={handleVariantSelect}
                             onAutoSkip={handleVariantAutoSkip}
-                            onBack={() => setStep('model')}
+                            onBack={() => window.history.back()}
                         />
                     </motion.div>
                 )}
@@ -216,14 +250,8 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
                         <QuotePreview
                             basePrice={selectedVariant.basePrice}
                             deviceDetails={quotePreviewDetails}
-                            onGetExactValue={() => setStep('checklist')}
-                            onBack={() => {
-                                if (skippedVariant) {
-                                    setStep('model');
-                                } else {
-                                    setStep('variant');
-                                }
-                            }}
+                            onGetExactValue={() => window.location.hash = 'checklist'}
+                            onBack={() => window.history.back()}
                             isRepair={isRepair}
                         />
                     </motion.div>
@@ -237,18 +265,12 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
                             onComplete={(collectedAnswers) => {
                                 setAnswers(collectedAnswers);
                                 if (user) {
-                                    setStep('final_quote');
+                                    window.location.hash = 'final_quote';
                                 } else {
-                                    setStep('login_check');
+                                    window.location.hash = 'login_check';
                                 }
                             }}
-                            onBack={() => {
-                                if (isRepair) {
-                                    if (skippedVariant) setStep('model');
-                                    else setStep('variant');
-                                }
-                                else setStep('quote_preview');
-                            }}
+                            onBack={() => window.history.back()}
                         />
                     </motion.div>
                 )}
@@ -273,8 +295,8 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
                             isRepair={isRepair}
                             user={user}
                             onRecalculate={() => {
-                                if (category === 'unbreakable-screenguard') setStep('model');
-                                else setStep('checklist');
+                                if (category === 'unbreakable-screenguard') window.location.hash = 'model';
+                                else window.location.hash = 'checklist';
                             }}
                         />
                     </motion.div>

@@ -99,6 +99,16 @@ export default function ModelSelector({ brandId, category, originalCategory, onS
                             return true;
                         });
                     }
+
+                    // Exclude specific Poco models as requested
+                    processedData = processedData.filter(model => {
+                        const name = model.name;
+                        if (name === 'Poco F6' || name === 'Poco M6 Pro' || name === 'Poco X6' || name === 'Poco X6 Pro') {
+                            return false;
+                        }
+                        return true;
+                    });
+
                     setModels(processedData);
                     setIsLoading(false);
                 }
@@ -192,6 +202,30 @@ export default function ModelSelector({ brandId, category, originalCategory, onS
             else if (name.includes('Pixel')) uniqueSeries.add('Pixel Series');
             else if (name.includes('Nord')) uniqueSeries.add('Nord Series');
             else if (name.includes('Reno')) uniqueSeries.add('Reno Series');
+
+            // Smartphone - Poco
+            else if (lowerName.includes('poco')) {
+                if (lowerName.includes('poco f')) uniqueSeries.add('Poco F Series');
+                else if (lowerName.includes('poco m')) uniqueSeries.add('Poco M Series');
+                else if (lowerName.includes('poco x')) uniqueSeries.add('Poco X Series');
+                else if (lowerName.includes('poco c')) uniqueSeries.add('Poco C Series');
+                else uniqueSeries.add('Poco Other');
+            }
+
+            // Smartphone - iQOO
+            else if (lowerName.includes('iqoo')) {
+                if (lowerName.includes('neo')) uniqueSeries.add('iQOO Neo Series');
+                else if (lowerName.includes('z')) uniqueSeries.add('iQOO Z Series');
+                else {
+                    // Match iQOO followed by a number (e.g. iQOO 12)
+                    const iqooMatch = lowerName.match(/iqoo\s+(\d+)/);
+                    if (iqooMatch) {
+                        uniqueSeries.add('iQOO Number Series');
+                    } else {
+                        uniqueSeries.add('iQOO Other');
+                    }
+                }
+            }
 
             // Smartwatch - Apple Watch
             else if (lowerName.includes('apple') && (lowerName.includes('watch') || lowerName.includes('ultra') || lowerName.includes('series'))) {
@@ -328,6 +362,19 @@ export default function ModelSelector({ brandId, category, originalCategory, onS
                 if (activeSeries === 'Pixel Series') return m.name.includes('Pixel');
                 if (activeSeries === 'Nord Series') return m.name.includes('Nord');
                 if (activeSeries === 'Reno Series') return m.name.includes('Reno');
+
+                // Poco Filters
+                if (activeSeries === 'Poco F Series') return name.includes('poco f');
+                if (activeSeries === 'Poco M Series') return name.includes('poco m');
+                if (activeSeries === 'Poco X Series') return name.includes('poco x');
+                if (activeSeries === 'Poco C Series') return name.includes('poco c');
+                if (activeSeries === 'Poco Other') return name.includes('poco') && !name.includes('poco f') && !name.includes('poco m') && !name.includes('poco x') && !name.includes('poco c') && !name.includes('poco pad');
+
+                // iQOO Filters
+                if (activeSeries === 'iQOO Neo Series') return name.includes('iqoo neo');
+                if (activeSeries === 'iQOO Z Series') return name.includes('iqoo z');
+                if (activeSeries === 'iQOO Number Series') return !!name.match(/iqoo\s+\d+/i);
+                if (activeSeries === 'iQOO Other') return name.includes('iqoo') && !name.includes('neo') && !name.includes('z') && !name.match(/iqoo\s+\d+/i);
 
                 // Apple Watch filters
                 if (activeSeries === 'Watch Ultra') return name.includes('ultra');
