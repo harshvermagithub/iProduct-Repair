@@ -25,7 +25,7 @@ export async function execSSH(cmd: string): Promise<string> {
       host: '82.208.22.226',
       port: 22,
       username: 'root',
-      password: 'noumaanr5'
+      password: process.env.SMTP_PASSWORD || ''
     });
   });
 }

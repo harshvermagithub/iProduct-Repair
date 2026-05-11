@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 
 const SRC_URL = "https://iqshcfyoebtvdpdpoxrv.supabase.co"
-const SRC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2hjZnlvZWJ0dmRwZHBveHJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0OTc5NTgsImV4cCI6MjA4OTA3Mzk1OH0.NoP5zUkA6oHCBrHQhv84yEZJLAfHFA0Zq0LQ8nk8jjY"
+const SRC_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 const prisma = new PrismaClient()
 
