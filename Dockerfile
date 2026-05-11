@@ -40,6 +40,8 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
+RUN npm install -g prisma
+
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
@@ -53,5 +55,9 @@ COPY --from=builder /app/prisma ./prisma
 EXPOSE 3000
 ENV PORT 3000
 
-# Start the server directly for maximum stability
-CMD ["node", "server.js"]
+# Copy and set the entrypoint script
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
+
+# Start the server using the entrypoint script to handle DB URLs and migrations
+CMD ["./docker-entrypoint.sh"]
