@@ -61,3 +61,30 @@ export async function getUserOrders() {
 
     return await db.getOrders(session.user.id);
 }
+
+export async function checkPincodeAvailability(pincode: string) {
+    const { prisma } = await import('@/lib/db');
+    const city = await prisma.city.findFirst({
+        where: {
+            isActive: true,
+            pincodes: { has: pincode }
+        }
+    });
+    return !!city;
+}
+
+export async function requestServiceArea(pincode: string, phone: string, address: string) {
+    // Send an email to the admin about the new service area request
+    const adminEmail = process.env.SUPERADMIN_EMAIL || 'admin@fonzkart.in';
+    const html = `
+        <h2>New Service Area Request</h2>
+        <p>A customer has requested service in an area that is currently not serviceable.</p>
+        <ul>
+            <li><b>Pincode:</b> ${pincode}</li>
+            <li><b>Phone:</b> ${phone || 'Not provided'}</li>
+            <li><b>Address/Location:</b> ${address || 'Not provided'}</li>
+        </ul>
+    `;
+    await sendSystemEmail(adminEmail, `Service Area Request for ${pincode}`, html);
+    return { success: true };
+}

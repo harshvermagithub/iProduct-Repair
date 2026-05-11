@@ -139,7 +139,7 @@ export default async function CitiesAdminPage() {
                                         });
                                         revalidatePath('/admin/cities');
                                     }} className="flex flex-col h-full">
-                                        <PincodeInput initialPincodes={city.pincodes || []} />
+                                        <PincodeInput initialPincodes={city.pincodes || []} cityName={city.name} />
                                         <button type="submit" className="mt-4 w-full h-9 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-sm">
                                             Update Service Areas
                                         </button>

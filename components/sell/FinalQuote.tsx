@@ -1,7 +1,7 @@
 
-import { CheckCircle, Truck, Wallet, Loader2, MapPin, Calendar, Clock, Zap, ArrowRight, ArrowLeft } from "lucide-react";
+import { CheckCircle, Truck, Wallet, Loader2, MapPin, Calendar, Clock, Zap, ArrowRight, ArrowLeft, X } from "lucide-react";
 import { useState, useEffect } from 'react';
-import { placeOrder } from '@/actions/orders';
+import { placeOrder, checkPincodeAvailability, requestServiceArea } from '@/actions/orders';
 import { calculatePrice } from '@/actions/priceCalculation';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,6 +44,10 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
     const [locationError, setLocationError] = useState('');
     // State for detected address preview
     const [detectedAddress, setDetectedAddress] = useState('');
+    const [isCheckingPincode, setIsCheckingPincode] = useState(false);
+    const [showPincodePopup, setShowPincodePopup] = useState(false);
+    const [isSendingRequest, setIsSendingRequest] = useState(false);
+    const [requestSent, setRequestSent] = useState(false);
 
     const router = useRouter();
 
@@ -175,6 +179,36 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
         // User said "User scan actually pinpoint their location".
         // Updating address is good UX.
         await fetchAddress(lat, lng);
+    };
+
+    const handleCheckServiceability = async () => {
+        setIsCheckingPincode(true);
+        try {
+            const isAvailable = await checkPincodeAvailability(pincode);
+            if (isAvailable) {
+                setBookingStep('schedule');
+            } else {
+                setShowPincodePopup(true);
+            }
+        } catch (error) {
+            console.error(error);
+            // Fallback: let them proceed or show error
+            setBookingStep('schedule');
+        } finally {
+            setIsCheckingPincode(false);
+        }
+    };
+
+    const handleSendRequest = async () => {
+        setIsSendingRequest(true);
+        try {
+            await requestServiceArea(pincode, phone, address || detectedAddress);
+            setRequestSent(true);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsSendingRequest(false);
+        }
     };
 
     const handleConfirmOrder = async () => {
@@ -458,13 +492,72 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                 </div>
 
                 <button
-                    onClick={() => setBookingStep('schedule')}
-                    disabled={(!address && !location) || pincode.length !== 6} // Either Address OR Location is required, AND Pincode is required
+                    onClick={handleCheckServiceability}
+                    disabled={(!address && !location) || pincode.length !== 6 || isCheckingPincode}
                     className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                    Continue to Schedule <ArrowRight className="w-5 h-5" />
+                    {isCheckingPincode ? <Loader2 className="animate-spin w-5 h-5" /> : <>Continue to Schedule <ArrowRight className="w-5 h-5" /></>}
                 </button>
             </motion.div>
+            
+            {/* PINCODE NOT SERVICEABLE POPUP */}
+            <AnimatePresence>
+                {showPincodePopup && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className="bg-card w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
+                        >
+                            <div className="p-6 text-center space-y-4">
+                                <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <MapPin className="w-8 h-8 text-orange-500" />
+                                </div>
+                                <h3 className="text-2xl font-bold">Area Not Serviceable</h3>
+                                <p className="text-muted-foreground">
+                                    We are currently not available in your area (Pincode: <b>{pincode}</b>), but we are expanding fast!
+                                </p>
+                                
+                                {requestSent ? (
+                                    <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 p-4 rounded-xl border border-green-200 dark:border-green-800/30 flex flex-col items-center gap-2">
+                                        <CheckCircle className="w-6 h-6" />
+                                        <p className="font-semibold text-sm">Request received! We'll notify you when we arrive.</p>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm font-medium text-foreground bg-muted p-3 rounded-lg">
+                                        Would you like us to notify you when we start operating in your area?
+                                    </p>
+                                )}
+                            </div>
+                            
+                            <div className="flex border-t border-border/50 divide-x divide-border/50 bg-muted/20">
+                                <button
+                                    onClick={() => setShowPincodePopup(false)}
+                                    className="flex-1 py-4 text-sm font-bold text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+                                >
+                                    Close
+                                </button>
+                                {!requestSent && (
+                                    <button
+                                        onClick={handleSendRequest}
+                                        disabled={isSendingRequest}
+                                        className="flex-1 py-4 text-sm font-bold text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        {isSendingRequest ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send Request'}
+                                    </button>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
         );
     }
 

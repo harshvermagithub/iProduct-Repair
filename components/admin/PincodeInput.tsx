@@ -1,10 +1,11 @@
 'use client';
 import { useState } from 'react';
-import { X, Plus } from 'lucide-react';
+import { Download, Plus, X } from 'lucide-react';
 
-export default function PincodeInput({ initialPincodes }: { initialPincodes: string[] }) {
+export default function PincodeInput({ initialPincodes, cityName }: { initialPincodes: string[], cityName?: string }) {
     const [pincodes, setPincodes] = useState<string[]>(initialPincodes);
     const [input, setInput] = useState('');
+    const [isLoadingAll, setIsLoadingAll] = useState(false);
 
     const handleAdd = (e?: React.MouseEvent | React.KeyboardEvent) => {
         if (e && 'key' in e && e.key !== 'Enter') return;
@@ -25,6 +26,33 @@ export default function PincodeInput({ initialPincodes }: { initialPincodes: str
 
     const handleRemove = (code: string) => {
         setPincodes(pincodes.filter(c => c !== code));
+    };
+
+    const handleAddAll = async () => {
+        if (!cityName) return;
+        setIsLoadingAll(true);
+        try {
+            const response = await fetch(`https://api.postalpincode.in/postoffice/${cityName}`);
+            const data = await response.json();
+            if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice) {
+                const newPincodes = data[0].PostOffice.map((po: any) => po.Pincode);
+                const uniqueNewPincodes = Array.from(new Set<string>(newPincodes));
+                const validPincodes = uniqueNewPincodes.filter(p => /^\d{6}$/.test(p));
+                
+                if (validPincodes.length > 0) {
+                    const merged = Array.from(new Set([...pincodes, ...validPincodes]));
+                    setPincodes(merged);
+                } else {
+                    alert(`No valid pincodes found for ${cityName}.`);
+                }
+            } else {
+                alert(`Could not fetch pincodes for ${cityName}.`);
+            }
+        } catch (e) {
+            alert('Error fetching pincodes. Please try again.');
+        } finally {
+            setIsLoadingAll(false);
+        }
     };
 
     return (
@@ -59,6 +87,22 @@ export default function PincodeInput({ initialPincodes }: { initialPincodes: str
                 >
                     <Plus className="w-3 h-3" /> Add
                 </button>
+                {cityName && (
+                    <button
+                        type="button"
+                        onClick={handleAddAll}
+                        disabled={isLoadingAll}
+                        className="shrink-0 h-9 px-3 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-md text-xs font-medium hover:bg-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-colors"
+                        title={`Fetch and add all pincodes for ${cityName}`}
+                    >
+                        {isLoadingAll ? (
+                            <div className="w-3 h-3 rounded-full border-2 border-emerald-800 border-t-transparent animate-spin" />
+                        ) : (
+                            <Download className="w-3 h-3" />
+                        )}
+                        Add All
+                    </button>
+                )}
             </div>
         </div>
     );
