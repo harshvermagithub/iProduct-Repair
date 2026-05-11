@@ -389,6 +389,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
     // -------------------------------------------------------------------------
     if (bookingStep === 'address') {
         return (
+            <>
             <motion.div
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
                 className="max-w-xl mx-auto py-8 space-y-6"
