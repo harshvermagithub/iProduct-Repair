@@ -44,7 +44,7 @@ export default function PincodeInput({ initialPincodes, cityName, masterPincodes
         if (!cityName) return;
         setIsLoadingAll(true);
         try {
-            const response = await fetch(`https://api.postalpincode.in/postoffice/${cityName}`);
+            const response = await fetch(`https://api.postalpincode.in/postoffice/${encodeURIComponent(cityName)}`);
             const data = await response.json();
             if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice) {
                 const newPincodes = data[0].PostOffice.map((po: any) => po.Pincode);

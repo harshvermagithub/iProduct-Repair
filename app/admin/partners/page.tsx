@@ -6,7 +6,6 @@ import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { addPartner } from '@/actions/admin';
 
-import PincodeInput from '@/components/admin/PincodeInput';
 import PartnerUpgradeForm from '@/components/admin/PartnerUpgradeForm';
 
 export const dynamic = 'force-dynamic';
@@ -186,8 +185,6 @@ export default async function PartnersPage() {
                                         'use server';
                                         const newCityId = data.get('cityId') as string;
                                         const managerId = data.get('managerId') as string;
-                                        const pincodesStr = data.get('pincodes') as string;
-                                        const pincodes = pincodesStr ? pincodesStr.split(',').map((p: string) => p.trim()).filter(Boolean) : [];
 
                                         const finalCityId = isZonalHead
                                             ? (managedCityIds.includes(newCityId) ? newCityId : p.cityId)
@@ -201,8 +198,7 @@ export default async function PartnersPage() {
                                             where: { id: p.id },
                                             data: {
                                                 cityId: finalCityId,
-                                                managerId: finalManagerId,
-                                                pincodes
+                                                managerId: finalManagerId
                                             }
                                         });
                                         revalidatePath('/admin/partners');
@@ -237,8 +233,10 @@ export default async function PartnersPage() {
                                             </div>
                                         )}
 
-                                        <div className="md:col-span-2 lg:col-span-1 xl:col-span-1">
-                                            <PincodeInput initialPincodes={p.pincodes || []} />
+                                        <div className="md:col-span-2 lg:col-span-1 xl:col-span-1 flex flex-col justify-end">
+                                            <div className="h-9 px-3 border border-dashed rounded-md bg-background/50 flex items-center text-xs text-muted-foreground">
+                                                <span>Pincodes are managed in the <a href="/admin/cities" className="text-primary hover:underline font-semibold">Cities Workspace</a></span>
+                                            </div>
                                         </div>
                                         
                                         <div className="md:col-span-2 lg:col-span-3 xl:col-span-3">
