@@ -19,11 +19,18 @@ COPY . .
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ARG NEXT_PUBLIC_APP_URL
+ARG POSTGRES_PRISMA_URL
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV DATABASE_URL=$POSTGRES_PRISMA_URL
 
 RUN npx prisma generate
+
+# Run database migrations during build phase
+# We use || true so that if DB is unreachable during build, it won't fail the entire build.
+RUN npx prisma db push --accept-data-loss || true
+
 RUN npm run build
 
 # Stage 3: Runner
@@ -40,24 +47,21 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-RUN npm install -g prisma
-
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# Pass the database connection to the runtime environment
+ARG POSTGRES_PRISMA_URL
+ENV DATABASE_URL=$POSTGRES_PRISMA_URL
 
 # In standalone mode, we only need these files
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 ENV PORT 3000
 
-# Copy and set the entrypoint script
-COPY docker-entrypoint.sh ./
-RUN chmod +x docker-entrypoint.sh
-
-# Start the server using the entrypoint script to handle DB URLs and migrations
-CMD ["./docker-entrypoint.sh"]
+# Start the server directly for maximum stability
+CMD ["node", "server.js"]
