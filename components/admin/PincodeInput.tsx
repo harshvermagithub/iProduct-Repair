@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Download, Plus, X } from 'lucide-react';
 
-export default function PincodeInput({ initialPincodes, cityName }: { initialPincodes: string[], cityName?: string }) {
+export default function PincodeInput({ initialPincodes, cityName, masterPincodes }: { initialPincodes: string[], cityName?: string, masterPincodes?: string[] }) {
     const [pincodes, setPincodes] = useState<string[]>(initialPincodes);
     const [input, setInput] = useState('');
     const [isLoadingAll, setIsLoadingAll] = useState(false);
@@ -18,6 +18,11 @@ export default function PincodeInput({ initialPincodes, cityName }: { initialPin
             return;
         }
 
+        if (masterPincodes && !masterPincodes.includes(code)) {
+            alert('This pincode is not registered in the City master list.');
+            return;
+        }
+
         if (code && !pincodes.includes(code)) {
             setPincodes([...pincodes, code]);
             setInput('');
@@ -29,6 +34,13 @@ export default function PincodeInput({ initialPincodes, cityName }: { initialPin
     };
 
     const handleAddAll = async () => {
+        if (masterPincodes) {
+            // Assign all master pincodes
+            const merged = Array.from(new Set([...pincodes, ...masterPincodes]));
+            setPincodes(merged);
+            return;
+        }
+
         if (!cityName) return;
         setIsLoadingAll(true);
         try {
@@ -87,13 +99,13 @@ export default function PincodeInput({ initialPincodes, cityName }: { initialPin
                 >
                     <Plus className="w-3 h-3" /> Add
                 </button>
-                {cityName && (
+                {(cityName || masterPincodes) && (
                     <button
                         type="button"
                         onClick={handleAddAll}
                         disabled={isLoadingAll}
                         className="shrink-0 h-9 px-3 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-md text-xs font-medium hover:bg-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-colors"
-                        title={`Fetch and add all pincodes for ${cityName}`}
+                        title={masterPincodes ? "Assign all city pincodes" : `Fetch and add all pincodes for ${cityName}`}
                     >
                         {isLoadingAll ? (
                             <div className="w-3 h-3 rounded-full border-2 border-emerald-800 border-t-transparent animate-spin" />
