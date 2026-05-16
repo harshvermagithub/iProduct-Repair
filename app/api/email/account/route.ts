@@ -26,7 +26,7 @@ async function execSSH(cmd: string): Promise<string> {
     }).on('error', (err) => {
       reject(err);
     }).connect({
-      host: '82.208.22.226',
+      host: '89.116.27.217',
       port: 22,
       username: 'root',
       password: process.env.SSH_PASSWORD || process.env.SMTP_PASSWORD || ''

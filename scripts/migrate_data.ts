@@ -73,7 +73,7 @@ async function main() {
                         update: row,
                         create: row
                     })
-                  } catch (e) {
+                  } catch (e: any) {
                      console.error(`  Error in ${table}:`, e.message)
                   }
                 } else if (table === "City" && !row.id) {
