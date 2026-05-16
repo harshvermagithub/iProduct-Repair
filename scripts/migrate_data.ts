@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 
-const SRC_URL = "https://iqshcfyoebtvdpdpoxrv.supabase.co"
+const SRC_URL = "https://kwjgadsatdmiydzbpedt.supabase.co"
 const SRC_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 const prisma = new PrismaClient()

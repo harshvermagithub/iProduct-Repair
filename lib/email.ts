@@ -15,8 +15,8 @@ export async function sendSystemEmail(to: string, subject: string, htmlContent: 
         }
 
         const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || '82.208.22.226',
-            port: parseInt(process.env.SMTP_PORT || '587'),
+            host: process.env.SMTP_HOST || '89.116.27.217',
+            port: parseInt(process.env.SMTP_PORT || '25'),
             secure: process.env.SMTP_SECURE === 'true',
             auth: {
                 user: smtpUser,
