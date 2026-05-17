@@ -26,9 +26,11 @@ services:
       supabase-db:
         condition: service_healthy
     environment:
+      API_EXTERNAL_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://api.89.116.27.217.sslip.io}
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-Noumaanr@2026}@supabase-db:5432/postgres?sslmode=disable
-      GOTRUE_SITE_URL: ${NEXT_PUBLIC_APP_URL:-http://89.116.27.217:3002}
+      GOTRUE_SITE_URL: ${NEXT_PUBLIC_APP_URL:-https://fonzkart.in}
+      GOTRUE_API_EXTERNAL_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://api.89.116.27.217.sslip.io}
       GOTRUE_JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-key-change-me}
       GOTRUE_JWT_EXP: 3600
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
@@ -74,10 +76,15 @@ services:
     environment:
       SUPABASE_URL: http://supabase-kong:8000
       STUDIO_PG_META_URL: http://supabase-pg-meta:8080
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/platform/profile').then((r) => {if (r.status !== 200) throw new Error(r.status)})\""]
+      interval: 5s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
 
   supabase-pg-meta:
-    image: supabase/postgres-meta:latest
+    image: supabase/postgres-meta:v0.96.6
     container_name: supabase-pg-meta
     environment:
       PG_META_DB_URL: postgresql://postgres:${POSTGRES_PASSWORD:-Noumaanr@2026}@supabase-db:5432/postgres?sslmode=disable
