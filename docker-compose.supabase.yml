@@ -32,11 +32,11 @@ services:
       GOTRUE_JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-key-change-me}
       GOTRUE_JWT_EXP: 3600
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
-      SMTP_HOST: 89.116.27.217
-      SMTP_PORT: "25"
-      SMTP_USER: noreply@fonzkart.in
-      SMTP_PASS: Noumaanr@2026
-      SMTP_ADMIN_EMAIL: noreply@fonzkart.in
+      GOTRUE_SMTP_HOST: "89.116.27.217"
+      GOTRUE_SMTP_PORT: "25"
+      GOTRUE_SMTP_USER: "noreply@fonzkart.in"
+      GOTRUE_SMTP_PASS: "Noumaanr@2026"
+      GOTRUE_SMTP_ADMIN_EMAIL: "noreply@fonzkart.in"
       GOTRUE_MAILER_AUTOCONFIRM: "true"
     restart: unless-stopped
 
