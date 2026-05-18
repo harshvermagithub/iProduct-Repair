@@ -27,6 +27,7 @@ services:
       - ENABLE_SASLAUTHD=0
       - ONE_DIR=1
       - PERMIT_DOCKER=network
+      - SSL_TYPE=self-signed
     cap_add:
       - NET_ADMIN
     restart: unless-stopped
