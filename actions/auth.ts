@@ -65,9 +65,9 @@ export async function signup(prevState: { error?: string } | null, formData: For
         }
 
         const transporter = nodemailer.createTransport({
-            host: '82.208.22.226',
-            port: 587,
-            secure: false,
+            host: process.env.SMTP_HOST || '89.116.27.217',
+            port: parseInt(process.env.SMTP_PORT || '587'),
+            secure: process.env.SMTP_SECURE === 'true',
             auth: {
                 user: smtpUser,
                 pass: smtpPass,
@@ -186,9 +186,9 @@ export async function signin(prevState: { error?: string } | null, formData: For
             const smtpPass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS || systemAccount?.password;
 
             const transporter = nodemailer.createTransport({
-                host: '82.208.22.226',
-                port: 587,
-                secure: false,
+                host: process.env.SMTP_HOST || '89.116.27.217',
+                port: parseInt(process.env.SMTP_PORT || '587'),
+                secure: process.env.SMTP_SECURE === 'true',
                 auth: { user: smtpUser, pass: smtpPass },
                 tls: { rejectUnauthorized: false }
             });
@@ -245,9 +245,9 @@ export async function requestPasswordReset(prevState: { error?: string, success?
         }
 
         const transporter = nodemailer.createTransport({
-            host: '82.208.22.226',
-            port: 587,
-            secure: false,
+            host: process.env.SMTP_HOST || '89.116.27.217',
+            port: parseInt(process.env.SMTP_PORT || '587'),
+            secure: process.env.SMTP_SECURE === 'true',
             auth: {
                 user: smtpUser,
                 pass: smtpPass,
