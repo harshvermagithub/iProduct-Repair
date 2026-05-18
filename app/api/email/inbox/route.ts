@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     if (!account) return NextResponse.json({ message: 'Account not found in local db' }, { status: 404 });
 
     const client = new ImapFlow({
-      host: '82.208.22.226',
+      host: process.env.SMTP_HOST || '89.116.27.217',
       port: 143,
       secure: false,
       auth: {
