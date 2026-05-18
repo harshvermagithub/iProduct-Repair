@@ -4,6 +4,7 @@
 import { db } from '@/lib/store';
 import { login } from '@/lib/session';
 import bcrypt from 'bcryptjs';
+import { prisma } from '@/lib/db';
 
 export async function quickRegister(formData: FormData) {
     const name = formData.get('name') as string;
@@ -32,7 +33,21 @@ export async function quickRegister(formData: FormData) {
         role: 'USER'
     };
 
-    await db.addUser(newUser);
+    if (phone) {
+        const existingPhoneUser = await prisma.user.findUnique({ where: { phone } });
+        if (existingPhoneUser) {
+            return { error: 'Phone number already registered' };
+        }
+    }
+
+    try {
+        await db.addUser(newUser);
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            return { error: 'Phone number or email already registered' };
+        }
+        return { error: 'An error occurred during registration' };
+    }
 
     // Create session
     await login({ id, email, name, role: 'USER' });

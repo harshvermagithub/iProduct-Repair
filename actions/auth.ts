@@ -35,7 +35,21 @@ export async function signup(prevState: { error?: string } | null, formData: For
     const id = crypto.randomUUID();
     const passwordHash = await bcrypt.hash(password, 10);
 
-    await db.addUser({ id, email, phone, passwordHash, name, role: 'UNVERIFIED' });
+    if (phone) {
+        const existingPhoneUser = await prisma.user.findUnique({ where: { phone } });
+        if (existingPhoneUser) {
+            return { error: 'Phone number already registered' };
+        }
+    }
+
+    try {
+        await db.addUser({ id, email, phone, passwordHash, name, role: 'UNVERIFIED' });
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            return { error: 'Phone number or email already registered' };
+        }
+        return { error: 'An error occurred during registration' };
+    }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiry = new Date(Date.now() + 15 * 60 * 1000);
