@@ -31,9 +31,9 @@ export async function POST(req: NextRequest) {
     if (!account) return NextResponse.json({ message: 'Account not found' }, { status: 404 });
 
     const transporter = nodemailer.createTransport({
-      host: '82.208.22.226',
-      port: 587,
-      secure: false, // true for 465, false for other ports
+      host: process.env.SMTP_HOST || '89.116.27.217',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true', // false by default
       auth: {
         user: account.email,
         pass: account.password,
