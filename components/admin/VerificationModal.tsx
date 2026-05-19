@@ -19,6 +19,12 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
     const [isCalculating, setIsCalculating] = useState(false);
     const [finalPrice, setFinalPrice] = useState(order.price);
     const [basePrice, setBasePrice] = useState<number | null>(null);
+    const [isRevising, setIsRevising] = useState(false);
+    const [revisedPriceInput, setRevisedPriceInput] = useState(order.price.toString());
+
+    useEffect(() => {
+        setRevisedPriceInput(finalPrice.toString());
+    }, [finalPrice]);
 
     useEffect(() => {
         findVariantByName(order.device).then(v => {
@@ -208,6 +214,43 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                 </div>
                             </div>
 
+                            {isRevising && (
+                                <div className="bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10 space-y-3 animate-in slide-in-from-top-2">
+                                    <label className="text-xs font-bold text-amber-500 uppercase tracking-wider block">Enter Revised Price (₹)</label>
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="number"
+                                            value={revisedPriceInput}
+                                            onChange={(e) => setRevisedPriceInput(e.target.value)}
+                                            className="flex-1 h-12 px-4 rounded-xl border bg-card text-lg font-bold outline-none focus:ring-2 focus:ring-amber-500"
+                                            placeholder="Revised Price"
+                                        />
+                                        <button 
+                                            type="button"
+                                            onClick={() => {
+                                                const parsed = parseFloat(revisedPriceInput);
+                                                if (!isNaN(parsed) && parsed >= 0) {
+                                                    setFinalPrice(parsed);
+                                                    setIsRevising(false);
+                                                } else {
+                                                    alert("Please enter a valid price");
+                                                }
+                                            }}
+                                            className="px-4 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-colors text-sm"
+                                        >
+                                            Apply
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setIsRevising(false)}
+                                            className="px-3 border rounded-xl hover:bg-muted text-xs transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold pl-1 text-muted-foreground uppercase tracking-widest">Verification Notes</label>
@@ -220,14 +263,53 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                 </div>
                             </div>
 
-                            <div className="flex gap-4 pt-4 sticky bottom-0 bg-background py-2">
-                                <button onClick={() => setStep('imei')} className="px-6 h-14 border-2 rounded-2xl font-bold hover:bg-muted transition-all">Back</button>
-                                <button 
-                                    onClick={() => onSubmit({ images, notes, finalOffer: finalPrice, imei, imei2 })}
-                                    className="flex-1 h-14 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-3"
-                                >
-                                    Submit for Approval <Check className="w-6 h-6" />
-                                </button>
+                            <div className="flex flex-col gap-3 pt-4 sticky bottom-0 bg-background py-2 border-t">
+                                {/* First row: Back & Revise */}
+                                <div className="flex gap-3">
+                                    <button 
+                                        type="button"
+                                        onClick={() => setStep('imei')} 
+                                        className="flex-1 h-12 border-2 rounded-xl font-bold hover:bg-muted transition-all text-sm"
+                                    >
+                                        Back
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            setRevisedPriceInput(finalPrice.toString());
+                                            setIsRevising(!isRevising);
+                                        }} 
+                                        className="flex-1 h-12 border-2 border-amber-500/30 text-amber-600 dark:text-amber-400 rounded-xl font-bold hover:bg-amber-500/5 transition-all text-sm flex items-center justify-center gap-2"
+                                    >
+                                        Revise Offer
+                                    </button>
+                                </div>
+                                
+                                {/* Second row: Decline & Pickup */}
+                                <div className="flex gap-3">
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            if (confirm("Are you sure you want to decline this pickup?")) {
+                                                onSubmit({ action: 'decline', images, notes, finalOffer: finalPrice, imei, imei2 });
+                                            }
+                                        }}
+                                        className="flex-1 h-14 bg-red-600 text-white font-black rounded-xl shadow-lg shadow-red-600/10 hover:bg-red-700 transition-all text-sm uppercase tracking-wider"
+                                    >
+                                        Decline
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            if (confirm(`Confirm pickup at ₹${finalPrice.toLocaleString()}?`)) {
+                                                onSubmit({ action: 'pickup', images, notes, finalOffer: finalPrice, imei, imei2 });
+                                            }
+                                        }}
+                                        className="flex-[2] h-14 bg-emerald-600 text-white font-black rounded-xl shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
+                                    >
+                                        <Check className="w-5 h-5" /> Confirm Pickup
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}

@@ -52,8 +52,11 @@ export default function RiderOrderList({
     const handleVerificationSubmit = async (data: any) => {
         if (!verifyingOrder) return;
         setUpdatingId(verifyingOrder.id);
+        const isDecline = data.action === 'decline';
+        const status = isDecline ? 'failed' : 'picked_up';
         try {
             await submitVerification(verifyingOrder.id, {
+                status,
                 riderAnswers: { 
                     notes: data.notes, 
                     imei: data.imei,
@@ -63,11 +66,15 @@ export default function RiderOrderList({
                 verificationImages: data.images,
                 offeredPrice: data.finalOffer
             });
-            alert('Verification submitted with IMEI ' + data.imei + ' for admin approval.');
+            if (isDecline) {
+                alert('Order verification declined and failed successfully.');
+            } else {
+                alert('Order verified and marked as Picked Up successfully!');
+            }
             setVerifyingOrder(null);
             router.refresh();
         } catch {
-            alert('Failed to submit verification');
+            alert(isDecline ? 'Failed to decline order' : 'Failed to pick up order');
         } finally {
             setUpdatingId(null);
         }

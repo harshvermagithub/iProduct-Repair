@@ -131,19 +131,41 @@ export async function updateOrderStatus(orderId: string, status: string, reason?
     return { success: true };
 }
 
-export async function submitVerification(orderId: string, payload: { riderAnswers: any, verificationImages: string[], offeredPrice: number }) {
+export async function submitVerification(orderId: string, payload: { riderAnswers: any, verificationImages: string[], offeredPrice: number, status?: string }) {
     const executive = await getExecutiveSession();
     if (!executive) throw new Error('Unauthorized');
 
+    const targetStatus = payload.status || 'picked_up';
+
     // Make Prisma raw update for new fields
     const { prisma } = await import('@/lib/db');
+    
+    let answersUpdate: any = {};
+    if (targetStatus === 'failed') {
+        const order = await prisma.order.findUnique({ where: { id: orderId } });
+        if (order) {
+            let answersObj: any = {};
+            if (order.answers && typeof order.answers === 'string') {
+                try { answersObj = JSON.parse(order.answers); } catch (e) { }
+            }
+            if (!answersObj.failLog) answersObj.failLog = [];
+            answersObj.failLog.push({ 
+                date: new Date().toISOString(), 
+                reason: payload.riderAnswers?.notes || 'Verification declined by executive', 
+                by: 'executive' 
+            });
+            answersUpdate.answers = JSON.stringify(answersObj);
+        }
+    }
+
     await prisma.order.update({
         where: { id: orderId },
         data: {
-            status: 'pending_verification',
+            status: targetStatus,
             riderAnswers: JSON.stringify(payload.riderAnswers),
             verificationImages: payload.verificationImages,
-            offeredPrice: payload.offeredPrice
+            offeredPrice: payload.offeredPrice,
+            ...answersUpdate
         }
     });
 
