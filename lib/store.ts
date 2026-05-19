@@ -266,12 +266,13 @@ export const db = {
     getRiders: async () => {
         return await prisma.rider.findMany();
     },
-    addRider: async (rider: { id: string, name: string, phone: string, status?: string, password?: string | null, partnerId?: string | null }) => {
+    addRider: async (rider: { id: string, name: string, phone: string, email?: string | null, status?: string, password?: string | null, partnerId?: string | null }) => {
         await prisma.rider.create({
             data: {
                 id: rider.id,
                 name: rider.name,
                 phone: rider.phone,
+                email: rider.email || null,
                 status: rider.status || 'available',
                 password: rider.password,
                 // @ts-ignore

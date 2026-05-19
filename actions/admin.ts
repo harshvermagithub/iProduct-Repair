@@ -180,6 +180,7 @@ export async function addFieldExecutive(email: string) {
                 data: {
                     name: user.name,
                     phone: user.phone,
+                    email: user.email,
                     status: 'available',
                     partnerId: partnerId
                 }
@@ -373,12 +374,13 @@ export async function deleteVariant(id: string) {
 
 // --- Riders ---
 
-export async function addRider(name: string, phone: string, partnerId?: string | null) {
+export async function addRider(name: string, phone: string, email?: string | null, partnerId?: string | null) {
     await requireAdmin();
     await db.addRider({
         id: randomUUID(),
         name,
         phone,
+        email: email || null,
         status: 'available',
         password: null,
         partnerId: partnerId || null

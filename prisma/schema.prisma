@@ -50,6 +50,7 @@ model Rider {
   id        String   @id @default(cuid())
   name      String
   phone     String
+  email     String?
   status    String   @default("available")
   password  String?
   createdAt DateTime @default(now())

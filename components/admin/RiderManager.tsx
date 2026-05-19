@@ -3,13 +3,14 @@
 
 import { useState, useEffect } from 'react';
 import { addRider, deleteRider, updateRiderPartner, addFieldExecutive } from '@/actions/admin';
-import { Trash2, Plus, Loader2, User, Phone, ChevronDown, ChevronUp, Package, AlertTriangle, Building2, ExternalLink } from 'lucide-react';
+import { Trash2, Plus, Loader2, User, Phone, ChevronDown, ChevronUp, Package, AlertTriangle, Building2, ExternalLink, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function RiderManager({ initialRiders, partners = [], currentUserRole, currentUserId }: { initialRiders: any[], partners?: any[], currentUserRole?: string, currentUserId?: string }) {
     const router = useRouter();
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
     const [partnerId, setPartnerId] = useState(currentUserRole === 'PARTNER' ? currentUserId : '');
     const [filterPartner, setFilterPartner] = useState('all');
     const [isLoading, setIsLoading] = useState(false);
@@ -57,9 +58,10 @@ export default function RiderManager({ initialRiders, partners = [], currentUser
 
         setIsLoading(true);
         try {
-            await addRider(name, phone, partnerId || undefined);
+            await addRider(name, phone, email || undefined, partnerId || undefined);
             setName('');
             setPhone('');
+            setEmail('');
             if (currentUserRole !== 'PARTNER') {
                 setPartnerId('');
             }
@@ -114,6 +116,16 @@ export default function RiderManager({ initialRiders, partners = [], currentUser
                                     placeholder="9876543210"
                                 />
                             </div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Email Address (Optional)</label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full h-10 px-3 border rounded-lg bg-background outline-none focus:border-primary transition-all text-sm"
+                                placeholder="rider@fonzkart.in"
+                            />
                         </div>
                         {currentUserRole !== 'PARTNER' && partners.length > 0 && (
                             <div className="space-y-2">
@@ -209,6 +221,12 @@ export default function RiderManager({ initialRiders, partners = [], currentUser
                                         <Phone className="w-3 h-3" />
                                         +91 {rider.phone}
                                     </div>
+                                    {rider.email && (
+                                        <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                                            <Mail className="w-3 h-3" />
+                                            {rider.email}
+                                        </div>
+                                    )}
                                     {rider.partner && (
                                         <div className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">
                                             Partner: <span className="font-semibold">{rider.partner.name}</span>
