@@ -6,7 +6,11 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 # Force development to ensure devDependencies (typescript, etc) are installed for building
 ENV NODE_ENV development
-RUN npm ci --ignore-scripts
+# Configure npm with high timeouts and retries to prevent ETIMEDOUT on slow networks
+RUN npm config set fetch-retry-maxtimeout 600000 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retries 10 && \
+    npm ci --ignore-scripts
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
