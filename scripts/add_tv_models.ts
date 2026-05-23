@@ -118,7 +118,7 @@ const TV_MODELS = [
   {
     brandId: 'xiaomi',
     name: 'Mi TV 4A Smart TV',
-    img: 'https://i01.appmifile.com/v1/MIBC/s/width/1000/height/1000/priority/1/2dd6fc82390a3de077b966cf13a96739.jpg',
+    img: '/models/xiaomi-tv/Mi_32_to_35_inches_TV.png',
     category: 'tv',
     priority: 1,
     variants: [
@@ -130,7 +130,7 @@ const TV_MODELS = [
   {
     brandId: 'xiaomi',
     name: 'Xiaomi Smart TV X Series',
-    img: 'https://i02.appmifile.com/565_operator_in/03/08/2023/34407871b6ad72a8c3d9a941efcfca3f.png',
+    img: '/models/xiaomi-tv/Mi_41_to_50_inches_TV.png',
     category: 'tv',
     priority: 2,
     variants: [
@@ -143,7 +143,7 @@ const TV_MODELS = [
   {
     brandId: 'xiaomi',
     name: 'Xiaomi OLED Vision TV',
-    img: 'https://i01.appmifile.com/v1/MIBC/s/width/1000/height/1000/priority/1/9b82142d765e9167df3c961e68789d97.jpg',
+    img: '/models/xiaomi-tv/Mi_51_to_60_inches_TV.png',
     category: 'tv',
     priority: 3,
     variants: [
@@ -155,7 +155,7 @@ const TV_MODELS = [
   {
     brandId: 'oneplus',
     name: 'OnePlus TV Y1S',
-    img: 'https://static.digit.in/product/oneplus-tv-43-y1s-pro-smart-tv-f1d1ca4dfa.jpeg',
+    img: '/models/oneplus-tv/OnePlus_41_to_50_inches_TV.png',
     category: 'tv',
     priority: 1,
     variants: [
@@ -166,7 +166,7 @@ const TV_MODELS = [
   {
     brandId: 'oneplus',
     name: 'OnePlus TV U1S',
-    img: 'https://static.digit.in/product/oneplus-tv-55-u1s-smart-tv-e51c89be6f.jpeg',
+    img: '/models/oneplus-tv/OnePlus_51_to_60_inches_TV.png',
     category: 'tv',
     priority: 2,
     variants: [
@@ -178,7 +178,7 @@ const TV_MODELS = [
   {
     brandId: 'oneplus',
     name: 'OnePlus TV Q1 Pro',
-    img: 'https://static.digit.in/product/oneplus-tv-55-q1-pro-smart-tv-5dbe5a585f.jpeg',
+    img: '/models/oneplus-tv/OnePlus_51_to_60_inches_TV.png',
     category: 'tv',
     priority: 3,
     variants: [
@@ -190,7 +190,7 @@ const TV_MODELS = [
   {
     brandId: 'motorola',
     name: 'Motorola Revou 2 4K TV',
-    img: 'https://rukminim2.flixcart.com/image/416/416/xif0q/television/y/h/u/-original-imagpcdsqfzhhy3h.jpeg?q=70',
+    img: '/models/motorola-tv/Motorola_41_to_50_inches_TV.png',
     category: 'tv',
     priority: 1,
     variants: [
@@ -201,7 +201,7 @@ const TV_MODELS = [
   {
     brandId: 'motorola',
     name: 'Motorola Envision 4K TV',
-    img: 'https://rukminim2.flixcart.com/image/416/416/xif0q/television/b/q/d/-original-imagsyhzqhyey2cz.jpeg?q=70',
+    img: '/models/motorola-tv/Motorola_32_to_35_inches_TV.png',
     category: 'tv',
     priority: 2,
     variants: [
@@ -215,7 +215,7 @@ const TV_MODELS = [
   {
     brandId: 'nokia',
     name: 'Nokia Ultra HD 4K TV',
-    img: 'https://rukminim2.flixcart.com/image/416/416/xif0q/television/h/k/q/-original-imaghgzcfhhzhy4g.jpeg?q=70',
+    img: '/models/nokia-tv/Nokia_41_to_50_inches_TV.png',
     category: 'tv',
     priority: 1,
     variants: [
@@ -227,7 +227,7 @@ const TV_MODELS = [
   {
     brandId: 'nokia',
     name: 'Nokia QLED Smart TV',
-    img: 'https://rukminim2.flixcart.com/image/416/416/ku8pbbk0/television/h/n/p/55qled24-nokia-original-imag7eqpcyyybgyg.jpeg?q=70',
+    img: '/models/nokia-tv/Nokia_51_to_60_inches_TV.png',
     category: 'tv',
     priority: 2,
     variants: [
@@ -240,7 +240,7 @@ const TV_MODELS = [
   {
     brandId: 'acer',
     name: 'Acer I Series 4K TV',
-    img: 'https://rukminim2.flixcart.com/image/416/416/xif0q/television/a/l/j/-original-imaghgza5zfhhy9g.jpeg?q=70',
+    img: '/models/nokia-tv/Nokia_41_to_50_inches_TV.png', // Fallback to Nokia TV graphic (looks beautiful)
     category: 'tv',
     priority: 1,
     variants: [
@@ -252,7 +252,7 @@ const TV_MODELS = [
   {
     brandId: 'acer',
     name: 'Acer Advanced I Series',
-    img: 'https://rukminim2.flixcart.com/image/416/416/xif0q/television/w/n/e/-original-imagpcdszhhzhy1g.jpeg?q=70',
+    img: '/models/nokia-tv/Nokia_32_to_35_inches_TV.png',
     category: 'tv',
     priority: 2,
     variants: [
@@ -263,7 +263,7 @@ const TV_MODELS = [
 ];
 
 async function main() {
-  console.log('Starting TV Seeding (Complete Premium Catalog)...');
+  console.log('Starting TV Seeding (Complete Premium Catalog with Reliable Images)...');
 
   // Ensure TV category is present in Brand records
   const targetBrands = ['samsung', 'sony', 'lg', 'xiaomi', 'oneplus', 'motorola', 'nokia', 'acer'];
@@ -303,7 +303,7 @@ async function main() {
   // Seed Models and their corresponding Variants
   console.log('\nSeeding new premium TV models...');
   for (const item of TV_MODELS) {
-    console.log(`Creating TV Model: ${item.name} for brand: ${item.brandId}`);
+    console.log(`Creating TV Model: ${item.name} (Image: ${item.img})`);
     
     const newModel = await prisma.model.create({
       data: {
