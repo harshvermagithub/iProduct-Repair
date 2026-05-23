@@ -114,9 +114,8 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
         return true;
     });
 
-    // Express Availability: Only if today is available (so < 4 PM)
-    // Actually, simply hide if currentHour >= 16.
-    const showExpress = currentHour < 16;
+    // Express Availability: Only between 10:00 AM and 4:00 PM
+    const showExpress = currentHour >= 10 && currentHour < 16;
 
 
     // -------------------------------------------------------------------------
@@ -671,7 +670,10 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                                 )}
                             </div>
                             <p className={`text-xs mt-0.5 ${isExpress ? 'text-slate-600' : 'text-muted-foreground'}`}>
-                                {!showExpress ? "Orders after 4 PM not valid for today." : (isRepair ? 'Service within 3 hours' : "Pickup within 3 hours")}
+                                {!showExpress 
+                                    ? (currentHour < 10 ? "Express pickup starts at 10 AM." : "Orders after 4 PM not valid for today.") 
+                                    : (isRepair ? 'Service within 3 hours' : "Pickup within 3 hours")
+                                }
                             </p>
                             {!showExpress && <p className="text-[10px] font-medium text-amber-600 mt-1">Pickup shift ends at 7 PM.</p>}
                         </div>
