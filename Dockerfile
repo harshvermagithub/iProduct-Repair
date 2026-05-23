@@ -14,7 +14,7 @@ RUN npm config set fetch-retry-maxtimeout 600000 && \
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
-RUN apk add --no-cache openssl
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -30,10 +30,6 @@ ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV DATABASE_URL=$POSTGRES_PRISMA_URL
 
 RUN npx prisma generate
-
-# Run database migrations during build phase
-# We use || true so that if DB is unreachable during build, it won't fail the entire build.
-RUN npx prisma db push --accept-data-loss || true
 
 RUN npm run build
 
