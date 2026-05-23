@@ -67,8 +67,24 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
 
     const scrollToTop = () => {
         if (typeof window !== 'undefined') {
-            window.scrollTo(0, 0);
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' as any });
+            if (document.documentElement) {
+                document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'instant' as any });
+                document.documentElement.scrollTop = 0;
+            }
+            if (document.body) {
+                document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' as any });
+                document.body.scrollTop = 0;
+            }
         }
+    };
+
+    const triggerScrollReset = () => {
+        scrollToTop();
+        const intervals = [10, 30, 50, 100, 150, 200, 300, 500];
+        intervals.forEach(delay => {
+            setTimeout(scrollToTop, delay);
+        });
     };
 
     // Sync state with URL Hash for browser back-button support
@@ -94,9 +110,7 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
     }, []); // Run once on mount
 
     useEffect(() => {
-        setTimeout(() => {
-            scrollToTop();
-        }, 100);
+        triggerScrollReset();
     }, [step]);
 
     // Safety net: If user reloads the page on a deep hash but state is empty, push them back
@@ -191,7 +205,7 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
 
     return (
         <div className="w-full max-w-6xl mx-auto">
-            <AnimatePresence mode="wait" onExitComplete={() => scrollToTop()}>
+            <AnimatePresence mode="wait" onExitComplete={triggerScrollReset}>
                 {step === 'category' && (
                     <motion.div key="category" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                         <CategorySelector onSelect={handleCategorySelect} />

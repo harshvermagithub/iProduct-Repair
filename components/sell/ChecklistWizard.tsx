@@ -20,14 +20,28 @@ export default function ChecklistWizard({ deviceInfo, category, onComplete, onBa
 
     const scrollToTop = () => {
         if (typeof window !== 'undefined') {
-            window.scrollTo(0, 0);
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' as any });
+            if (document.documentElement) {
+                document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'instant' as any });
+                document.documentElement.scrollTop = 0;
+            }
+            if (document.body) {
+                document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' as any });
+                document.body.scrollTop = 0;
+            }
         }
     };
 
+    const triggerScrollReset = () => {
+        scrollToTop();
+        const intervals = [10, 30, 50, 100, 150, 200, 300, 500];
+        intervals.forEach(delay => {
+            setTimeout(scrollToTop, delay);
+        });
+    };
+
     useEffect(() => {
-        setTimeout(() => {
-            scrollToTop();
-        }, 100);
+        triggerScrollReset();
     }, [currentStepIndex]);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,6 +77,7 @@ export default function ChecklistWizard({ deviceInfo, category, onComplete, onBa
     const handleBack = () => {
         if (currentStepIndex > 0) {
             setCurrentStepIndex(prev => prev - 1);
+            triggerScrollReset();
         } else if (currentStepIndex === 0 && onBack) {
             onBack();
         }
@@ -71,6 +86,7 @@ export default function ChecklistWizard({ deviceInfo, category, onComplete, onBa
     const handleNext = () => {
         if (currentStepIndex < steps.length - 1) {
             setCurrentStepIndex(prev => prev + 1);
+            triggerScrollReset();
         } else {
             onComplete(answers);
         }
@@ -128,7 +144,7 @@ export default function ChecklistWizard({ deviceInfo, category, onComplete, onBa
                 <h2 className="text-2xl font-bold mb-2">{currentStep.title}</h2>
                 <p className="text-muted-foreground mb-8">{currentStep.subtitle}</p>
 
-                <AnimatePresence mode="wait" onExitComplete={() => scrollToTop()}>
+                <AnimatePresence mode="wait" onExitComplete={triggerScrollReset}>
                     <motion.div
                         key={currentStep.id}
                         initial={{ opacity: 0, x: 20 }}
