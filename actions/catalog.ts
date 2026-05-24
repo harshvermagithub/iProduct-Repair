@@ -35,6 +35,9 @@ export async function findVariantByName(deviceName: string) {
             model: {
                 name: name
             }
+        },
+        include: {
+            model: true
         }
     });
     return found;

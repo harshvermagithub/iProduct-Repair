@@ -16,6 +16,7 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
     const [imei2, setImei2] = useState('');
     const [showScanner, setShowScanner] = useState(false);
     const [answers, setAnswers] = useState<Record<string, unknown>>({});
+    const [deviceCategory, setDeviceCategory] = useState<string>('smartphone');
     const [isCalculating, setIsCalculating] = useState(false);
     const [finalPrice, setFinalPrice] = useState(order.price);
     const [basePrice, setBasePrice] = useState<number | null>(null);
@@ -28,7 +29,13 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
 
     useEffect(() => {
         findVariantByName(order.device).then(v => {
-            if (v) setBasePrice(v.basePrice);
+            if (v) {
+                setBasePrice(v.basePrice);
+                const cat = (v as any).model?.category;
+                if (cat) {
+                    setDeviceCategory(cat);
+                }
+            }
         });
     }, [order.device]);
 
@@ -37,7 +44,7 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
         setIsCalculating(true);
         try {
             const startPrice = basePrice || order.price;
-            const calculated = await calculatePrice(startPrice, newAnswers, 'smartphone');
+            const calculated = await calculatePrice(startPrice, newAnswers, deviceCategory);
             setFinalPrice(calculated);
             setStep('imei');
         } catch {
@@ -113,7 +120,7 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                             </div>
                             <ChecklistWizard 
                                 deviceInfo={{ name: order.device, variant: '', img: '' }}
-                                category="smartphone"
+                                category={deviceCategory}
                                 onComplete={handleConditionComplete}
                             />
                         </div>
@@ -291,7 +298,7 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                         type="button"
                                         onClick={() => {
                                             if (confirm("Are you sure you want to decline this pickup?")) {
-                                                onSubmit({ action: 'decline', images, notes, finalOffer: finalPrice, imei, imei2 });
+                                                onSubmit({ action: 'decline', images, notes, finalOffer: finalPrice, imei, imei2, answers });
                                             }
                                         }}
                                         className="flex-1 h-14 bg-red-600 text-white font-black rounded-xl shadow-lg shadow-red-600/10 hover:bg-red-700 transition-all text-sm uppercase tracking-wider"
@@ -302,7 +309,7 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                         type="button"
                                         onClick={() => {
                                             if (confirm(`Confirm pickup at ₹${finalPrice.toLocaleString()}?`)) {
-                                                onSubmit({ action: 'pickup', images, notes, finalOffer: finalPrice, imei, imei2 });
+                                                onSubmit({ action: 'pickup', images, notes, finalOffer: finalPrice, imei, imei2, answers });
                                             }
                                         }}
                                         className="flex-[2] h-14 bg-emerald-600 text-white font-black rounded-xl shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider"

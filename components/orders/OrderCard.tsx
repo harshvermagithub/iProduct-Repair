@@ -198,22 +198,14 @@ export default function OrderCard({ order }: OrderCardProps) {
                                     )}
 
                                     {/* Accessories */}
-                                    {(answers.accessories !== undefined || answers.warranty || answers.physical_condition) && (
-                                        <div className="flex flex-col gap-1 pb-3 border-b border-border text-sm">
-                                            <div className="flex justify-between items-start gap-4">
-                                                <span className="text-muted-foreground">Accessories</span>
-                                                <div className="flex flex-col items-end gap-1">
-                                                    <span className="font-medium text-foreground">
-                                                        {(answers.accessories as string[])?.includes('charger') ? 'Original Charger' : 'No Original Charger'}
-                                                    </span>
-                                                    <span className="font-medium text-foreground">
-                                                        {(answers.accessories as string[])?.includes('box') ? 'Original Box' : 'No Original Box'}
-                                                    </span>
-                                                    <span className="font-medium text-foreground">
-                                                        {(answers.accessories as string[])?.includes('bill') ? 'Original Bill' : 'No Original Bill'}
-                                                    </span>
-                                                </div>
-                                            </div>
+                                    {answers.accessories !== undefined && (
+                                        <div className="flex justify-between items-start gap-4 pb-3 border-b border-border text-sm">
+                                            <span className="text-muted-foreground">Accessories Included</span>
+                                            <span className="font-semibold text-right text-primary max-w-[50%]">
+                                                {Array.isArray(answers.accessories) && answers.accessories.length > 0
+                                                    ? answers.accessories.map((i: string) => i.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())).join(', ')
+                                                    : 'None'}
+                                            </span>
                                         </div>
                                     )}
 

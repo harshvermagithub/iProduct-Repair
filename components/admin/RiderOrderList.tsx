@@ -61,7 +61,8 @@ export default function RiderOrderList({
                     notes: data.notes, 
                     imei: data.imei,
                     imei2: data.imei2,
-                    verifiedAt: new Date().toISOString()
+                    verifiedAt: new Date().toISOString(),
+                    answers: data.answers
                 },
                 verificationImages: data.images,
                 offeredPrice: data.finalOffer

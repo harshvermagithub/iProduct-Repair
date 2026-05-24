@@ -141,21 +141,30 @@ export async function submitVerification(orderId: string, payload: { riderAnswer
     const { prisma } = await import('@/lib/db');
     
     let answersUpdate: any = {};
-    if (targetStatus === 'failed') {
-        const order = await prisma.order.findUnique({ where: { id: orderId } });
-        if (order) {
-            let answersObj: any = {};
-            if (order.answers && typeof order.answers === 'string') {
-                try { answersObj = JSON.parse(order.answers); } catch (e) { }
-            }
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (order) {
+        let answersObj: any = {};
+        if (order.answers && typeof order.answers === 'string') {
+            try { answersObj = JSON.parse(order.answers); } catch (e) { }
+        }
+        
+        // Deep merge rider re-evaluated answers
+        if (payload.riderAnswers?.answers) {
+            answersObj = {
+                ...answersObj,
+                ...payload.riderAnswers.answers
+            };
+        }
+
+        if (targetStatus === 'failed') {
             if (!answersObj.failLog) answersObj.failLog = [];
             answersObj.failLog.push({ 
                 date: new Date().toISOString(), 
                 reason: payload.riderAnswers?.notes || 'Verification declined by executive', 
                 by: 'executive' 
             });
-            answersUpdate.answers = JSON.stringify(answersObj);
         }
+        answersUpdate.answers = JSON.stringify(answersObj);
     }
 
     await prisma.order.update({
