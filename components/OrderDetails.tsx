@@ -27,7 +27,17 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
         { label: 'Warranty Period', value: answers.warranty, icon: <Clock className="w-4 h-4" /> },
         { label: 'Original Bill', value: answers.bill, icon: <FileText className="w-4 h-4" /> },
         { label: 'Screen Type', value: answers.screen_type, icon: <Smartphone className="w-4 h-4" /> },
-        { label: 'Payment Option', value: answers.paymentMethod ? (answers.paymentMethod + (answers.upiId ? ` (${answers.upiId})` : '')) : undefined, icon: <Wallet className="w-4 h-4" /> },
+        { 
+            label: 'Payout Method', 
+            value: answers.paymentMethod 
+                ? (
+                    String(answers.paymentMethod).replace(/_/g, ' ') + 
+                    (answers.paymentMethod === 'upi' && answers.upiId ? ` (${answers.upiId})` : '') +
+                    (answers.paymentMethod === 'bank_transfer' && answers.bankAccount ? ` (A/C: ${answers.bankAccount}, IFSC: ${answers.bankIfsc || 'N/A'}, Name: ${answers.bankAccountName || 'N/A'})` : '')
+                  ) 
+                : undefined, 
+            icon: <Wallet className="w-4 h-4" /> 
+        },
     ];
 
     return (

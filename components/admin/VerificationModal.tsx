@@ -26,6 +26,9 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
 
     const [paymentMethod, setPaymentMethod] = useState<string>(initialAnswersObj.paymentMethod || 'cash');
     const [upiId, setUpiId] = useState<string>(initialAnswersObj.upiId || '');
+    const [bankAccount, setBankAccount] = useState<string>(initialAnswersObj.bankAccount || '');
+    const [bankIfsc, setBankIfsc] = useState<string>(initialAnswersObj.bankIfsc || '');
+    const [bankAccountName, setBankAccountName] = useState<string>(initialAnswersObj.bankAccountName || '');
     const [basePrice, setBasePrice] = useState<number | null>(null);
     const [isRevising, setIsRevising] = useState(false);
     const [revisedPriceInput, setRevisedPriceInput] = useState(order.price.toString());
@@ -228,17 +231,18 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                 </div>
                             </div>
 
-                            {/* Doorstep Payment Selection */}
+                            {/* Doorstep Payout Selection */}
                             <div className="bg-muted/50 p-6 rounded-3xl border space-y-4">
                                 <h4 className="font-bold text-sm text-foreground uppercase tracking-wider flex items-center gap-2">
-                                    <Wallet className="w-4 h-4 text-emerald-600" /> Doorstep Payment Method
+                                    <Wallet className="w-4 h-4 text-emerald-600" /> Doorstep Payout Method
                                 </h4>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                     {[
                                         { id: 'cash', label: 'Cash Payment' },
                                         { id: 'upi', label: 'UPI Transfer' },
-                                        { id: 'amazon_voucher', label: 'Amazon Gift Card' },
-                                        { id: 'flipkart_voucher', label: 'Flipkart Gift Card' },
+                                        { id: 'bank_transfer', label: 'Bank Account' },
+                                        { id: 'amazon_voucher', label: 'Amazon Card' },
+                                        { id: 'flipkart_voucher', label: 'Flipkart Card' },
                                     ].map((opt) => (
                                         <button
                                             key={opt.id}
@@ -246,7 +250,7 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                             onClick={() => setPaymentMethod(opt.id)}
                                             className={`p-3 text-xs font-bold rounded-xl border-2 transition-all ${
                                                 paymentMethod === opt.id
-                                                    ? 'border-emerald-600 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400'
+                                                    ? 'border-emerald-600 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 font-extrabold'
                                                     : 'border-border bg-card hover:bg-muted text-muted-foreground'
                                             }`}
                                         >
@@ -264,6 +268,42 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                             placeholder="username@bank"
                                             className="w-full h-11 px-3 bg-card border rounded-xl font-mono text-sm outline-none focus:ring-2 focus:ring-emerald-500/20"
                                         />
+                                    </div>
+                                )}
+                                {paymentMethod === 'bank_transfer' && (
+                                    <div className="space-y-3 animate-in slide-in-from-top-1">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-muted-foreground uppercase">Account Holder Name</label>
+                                            <input
+                                                type="text"
+                                                value={bankAccountName}
+                                                onChange={(e) => setBankAccountName(e.target.value)}
+                                                placeholder="Full Name"
+                                                className="w-full h-11 px-3 bg-card border rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/20"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-black text-muted-foreground uppercase">Account Number</label>
+                                                <input
+                                                    type="text"
+                                                    value={bankAccount}
+                                                    onChange={(e) => setBankAccount(e.target.value.replace(/\D/g, ''))}
+                                                    placeholder="Account No"
+                                                    className="w-full h-11 px-3 bg-card border rounded-xl font-mono text-sm outline-none focus:ring-2 focus:ring-emerald-500/20"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-black text-muted-foreground uppercase">IFSC Code</label>
+                                                <input
+                                                    type="text"
+                                                    value={bankIfsc}
+                                                    onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                                                    placeholder="SBIN0012345"
+                                                    className="w-full h-11 px-3 bg-card border rounded-xl font-mono text-sm outline-none focus:ring-2 focus:ring-emerald-500/20"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -348,7 +388,10 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                                 const updatedAnswers = {
                                                     ...answers,
                                                     paymentMethod,
-                                                    upiId: paymentMethod === 'upi' ? upiId : undefined
+                                                    upiId: paymentMethod === 'upi' ? upiId : undefined,
+                                                    bankAccount: paymentMethod === 'bank_transfer' ? bankAccount : undefined,
+                                                    bankIfsc: paymentMethod === 'bank_transfer' ? bankIfsc : undefined,
+                                                    bankAccountName: paymentMethod === 'bank_transfer' ? bankAccountName : undefined
                                                 };
                                                 onSubmit({ action: 'decline', images, notes, finalOffer: finalPrice, imei, imei2, answers: updatedAnswers });
                                             }
@@ -364,7 +407,10 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                                 const updatedAnswers = {
                                                     ...answers,
                                                     paymentMethod,
-                                                    upiId: paymentMethod === 'upi' ? upiId : undefined
+                                                    upiId: paymentMethod === 'upi' ? upiId : undefined,
+                                                    bankAccount: paymentMethod === 'bank_transfer' ? bankAccount : undefined,
+                                                    bankIfsc: paymentMethod === 'bank_transfer' ? bankIfsc : undefined,
+                                                    bankAccountName: paymentMethod === 'bank_transfer' ? bankAccountName : undefined
                                                 };
                                                 onSubmit({ action: 'pickup', images, notes, finalOffer: finalPrice, imei, imei2, answers: updatedAnswers });
                                             }

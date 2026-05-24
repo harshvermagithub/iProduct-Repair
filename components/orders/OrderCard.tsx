@@ -24,7 +24,7 @@ export default function OrderCard({ order }: OrderCardProps) {
     const phone = answers.phone || 'N/A';
 
     // Filter out scheduling keys to just show condition details
-    const conditionKeys = Object.keys(answers).filter(k => !['isExpress', 'scheduledDate', 'scheduledSlot', 'phone', 'paymentMethod', 'upiId'].includes(k));
+    const conditionKeys = Object.keys(answers).filter(k => !['isExpress', 'scheduledDate', 'scheduledSlot', 'phone', 'paymentMethod', 'upiId', 'bankAccount', 'bankIfsc', 'bankAccountName'].includes(k));
 
     return (
         <div className={`bg-card border rounded-xl shadow-sm transition-all overflow-hidden ${isExpanded ? 'ring-2 ring-primary/20' : 'hover:border-primary/30'}`}>
@@ -232,10 +232,11 @@ export default function OrderCard({ order }: OrderCardProps) {
                                     {/* Payment Option */}
                                     {answers.paymentMethod && (
                                         <div className="flex justify-between items-start gap-4">
-                                            <span className="text-muted-foreground">Payment Option</span>
+                                            <span className="text-muted-foreground">Payout Method</span>
                                             <span className="font-bold text-right text-emerald-600 dark:text-emerald-400 max-w-[65%] capitalize">
                                                 {String(answers.paymentMethod).replace(/_/g, ' ')}
                                                 {answers.paymentMethod === 'upi' && answers.upiId && ` (${answers.upiId})`}
+                                                {answers.paymentMethod === 'bank_transfer' && answers.bankAccount && ` (A/C: ${answers.bankAccount})`}
                                             </span>
                                         </div>
                                     )}

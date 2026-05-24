@@ -38,8 +38,11 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
     const [selectedDate, setSelectedDate] = useState<number>(0); // 0 to 3 index
     const [selectedSlot, setSelectedSlot] = useState<string>('');
     const [isExpress, setIsExpress] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'amazon_voucher' | 'flipkart_voucher'>('cash');
+    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'bank_transfer' | 'amazon_voucher' | 'flipkart_voucher'>('cash');
     const [upiId, setUpiId] = useState('');
+    const [bankAccount, setBankAccount] = useState('');
+    const [bankIfsc, setBankIfsc] = useState('');
+    const [bankAccountName, setBankAccountName] = useState('');
 
     // UI States
     const [isGettingLocation, setIsGettingLocation] = useState(false);
@@ -223,7 +226,10 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                 isExpress,
                 detectedAddress,
                 paymentMethod,
-                upiId: paymentMethod === 'upi' ? upiId : undefined
+                upiId: paymentMethod === 'upi' ? upiId : undefined,
+                bankAccount: paymentMethod === 'bank_transfer' ? bankAccount : undefined,
+                bankIfsc: paymentMethod === 'bank_transfer' ? bankIfsc : undefined,
+                bankAccountName: paymentMethod === 'bank_transfer' ? bankAccountName : undefined
             };
 
             await placeOrder(deviceInfo.name, deviceInfo.variant, finalPrice, address, pincode, location, finalAnswers);
@@ -568,138 +574,140 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
     // -------------------------------------------------------------------------
     // RENDER: STEP 4 - SCHEDULE
     // -------------------------------------------------------------------------
-    return (
-        <motion.div
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-            className="max-w-xl mx-auto py-8 space-y-6"
-        >
-            <div className="flex items-center gap-4 mb-4">
-                <button onClick={() => setBookingStep('address')} className="p-2 hover:bg-slate-100 rounded-full">
-                    <ArrowLeft className="w-6 h-6" />
-                </button>
-                <h2 className="text-2xl font-bold">{isRepair ? 'Schedule Visit' : 'Schedule Pickup'}</h2>
-            </div>
-
-            <div className="space-y-6">
-
-                {/* Date Selection */}
-                <div className={`space-y-3 transition-opacity ${isExpress ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                    <label className="text-sm font-medium flex items-center gap-2">
-                        <Calendar className="w-4 h-4" /> Select Date
-                    </label>
-                    <div className="grid grid-cols-4 gap-2">
-                        {dates.map((d, i) => (
-                            <button
-                                key={i}
-                                onClick={() => {
-                                    setSelectedDate(i);
-                                    setIsExpress(false);
-                                }}
-                                className={`flex flex-col items-center p-3 rounded-xl border transition-all ${selectedDate === i
-                                    ? 'border-primary bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20'
-                                    : 'border-border bg-card hover:bg-accent'
-                                    }`}
-                            >
-                                <span className="text-xs opacity-80">{d.day}</span>
-                                <span className="text-lg font-bold">{d.date}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Time Slot Selection */}
-                <div className={`space-y-3 transition-opacity ${isExpress ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                    <label className="text-sm font-medium flex items-center gap-2">
-                        <Clock className="w-4 h-4" /> Select Time Slot
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {availableSlots.length > 0 ? availableSlots.map((slot) => (
-                            <button
-                                key={slot}
-                                onClick={() => {
-                                    setSelectedSlot(slot);
-                                    setIsExpress(false);
-                                }}
-                                className={`p-4 rounded-xl border text-sm font-semibold transition-all ${selectedSlot === slot
-                                    ? 'border-primary bg-primary/10 text-primary shadow-sm'
-                                    : 'border-border bg-card hover:bg-accent'
-                                    }`}
-                            >
-                                {slot}
-                            </button>
-                        )) : (
-                            <p className="text-sm text-muted-foreground col-span-2 text-center py-4 bg-muted/20 rounded-xl">
-                                No slots available for this date.
-                            </p>
-                        )}
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-4 py-2">
-                    <div className="flex-1 border-t border-dashed border-gray-300"></div>
-                    <span className="text-muted-foreground font-medium text-xs uppercase">OR</span>
-                    <div className="flex-1 border-t border-dashed border-gray-300"></div>
-                </div>
-
-                {/* Express Pickup Option */}
-                <div
-                    className={`relative p-5 rounded-2xl border-2 transition-all overflow-hidden ${!showExpress ? 'border-dashed border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed' :
-                        isExpress ? 'border-amber-400 bg-amber-50 shadow-md transform scale-[1.02] cursor-pointer' :
-                            'border-border bg-card hover:border-amber-200 opacity-90 cursor-pointer'
-                        }`}
-                    onClick={() => {
-                        if (!showExpress) return;
-                        const newState = !isExpress;
-                        setIsExpress(newState);
-                        if (newState) setSelectedSlot('');
-                    }}
-                >
-                    {isExpress && <div className="absolute top-0 right-0 bg-amber-400 text-amber-950 text-[10px] font-bold px-2 py-1 rounded-bl-xl">SELECTED</div>}
-                    {!showExpress && <div className="absolute top-0 right-0 bg-slate-400 text-white text-[10px] font-bold px-2 py-1 rounded-bl-xl">UNAVAILABLE</div>}
-
-                    <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isExpress ? 'bg-amber-100 text-amber-600' : !showExpress ? 'bg-slate-200 text-slate-400' : 'bg-slate-100 text-slate-400'}`}>
-                            <Zap className="w-6 h-6 fill-current" />
-                        </div>
-                        <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                                <h4 className={`font-bold ${isExpress ? 'text-slate-900' : !showExpress ? 'text-muted-foreground' : 'text-foreground'}`}>{isRepair ? 'Express Service' : 'Express Pickup'}</h4>
-                                {!showExpress ? (
-                                    <span className="text-xs font-bold text-slate-400">CLOSED</span>
-                                ) : (
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-xs ${isExpress ? 'text-slate-500' : 'text-muted-foreground'} line-through`}>₹50</span>
-                                        <span className="text-sm font-bold text-green-600">FREE</span>
-                                    </div>
-                                )}
-                            </div>
-                            <p className={`text-xs mt-0.5 ${isExpress ? 'text-slate-600' : 'text-muted-foreground'}`}>
-                                {!showExpress 
-                                    ? (currentHour < 10 ? "Express pickup starts at 10 AM." : "Orders after 4 PM not valid for today.") 
-                                    : (isRepair ? 'Service within 3 hours' : "Pickup within 3 hours")
-                                }
-                            </p>
-                            {!showExpress && <p className="text-[10px] font-medium text-amber-600 mt-1">Pickup shift ends at 7 PM.</p>}
-                        </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isExpress ? 'border-amber-500 bg-amber-500' : 'border-slate-300'}`}>
-                            {isExpress && <CheckCircle className="w-4 h-4 text-white" />}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <button
-                onClick={() => setBookingStep('payment')}
-                disabled={isSubmitting || (!selectedSlot && !isExpress)}
-                className="w-full py-4 text-xl font-bold text-white bg-green-600 rounded-xl shadow-lg hover:bg-green-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 animate-pulse hover:animate-none"
+    if (bookingStep === 'schedule') {
+        return (
+            <motion.div
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+                className="max-w-xl mx-auto py-8 space-y-6"
             >
-                Proceed to Payment <ArrowRight className="w-5 h-5" />
-            </button>
-            <p className="text-center text-xs text-muted-foreground pb-8">
-                By confirming, you agree to our Terms of Service
-            </p>
-        </motion.div>
-    );
+                <div className="flex items-center gap-4 mb-4">
+                    <button onClick={() => setBookingStep('address')} className="p-2 hover:bg-slate-100 rounded-full">
+                        <ArrowLeft className="w-6 h-6" />
+                    </button>
+                    <h2 className="text-2xl font-bold">{isRepair ? 'Schedule Visit' : 'Schedule Pickup'}</h2>
+                </div>
+
+                <div className="space-y-6">
+
+                    {/* Date Selection */}
+                    <div className={`space-y-3 transition-opacity ${isExpress ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                        <label className="text-sm font-medium flex items-center gap-2">
+                            <Calendar className="w-4 h-4" /> Select Date
+                        </label>
+                        <div className="grid grid-cols-4 gap-2">
+                            {dates.map((d, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => {
+                                        setSelectedDate(i);
+                                        setIsExpress(false);
+                                    }}
+                                    className={`flex flex-col items-center p-3 rounded-xl border transition-all ${selectedDate === i
+                                        ? 'border-primary bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20'
+                                        : 'border-border bg-card hover:bg-accent'
+                                        }`}
+                                >
+                                    <span className="text-xs opacity-80">{d.day}</span>
+                                    <span className="text-lg font-bold">{d.date}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Time Slot Selection */}
+                    <div className={`space-y-3 transition-opacity ${isExpress ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                        <label className="text-sm font-medium flex items-center gap-2">
+                            <Clock className="w-4 h-4" /> Select Time Slot
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {availableSlots.length > 0 ? availableSlots.map((slot) => (
+                                <button
+                                    key={slot}
+                                    onClick={() => {
+                                        setSelectedSlot(slot);
+                                        setIsExpress(false);
+                                    }}
+                                    className={`p-4 rounded-xl border text-sm font-semibold transition-all ${selectedSlot === slot
+                                        ? 'border-primary bg-primary/10 text-primary shadow-sm'
+                                        : 'border-border bg-card hover:bg-accent'
+                                        }`}
+                                >
+                                    {slot}
+                                </button>
+                            )) : (
+                                <p className="text-sm text-muted-foreground col-span-2 text-center py-4 bg-muted/20 rounded-xl">
+                                    No slots available for this date.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 py-2">
+                        <div className="flex-1 border-t border-dashed border-gray-300"></div>
+                        <span className="text-muted-foreground font-medium text-xs uppercase">OR</span>
+                        <div className="flex-1 border-t border-dashed border-gray-300"></div>
+                    </div>
+
+                    {/* Express Pickup Option */}
+                    <div
+                        className={`relative p-5 rounded-2xl border-2 transition-all overflow-hidden ${!showExpress ? 'border-dashed border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed' :
+                            isExpress ? 'border-amber-400 bg-amber-50 shadow-md transform scale-[1.02] cursor-pointer' :
+                                'border-border bg-card hover:border-amber-200 opacity-90 cursor-pointer'
+                            }`}
+                        onClick={() => {
+                            if (!showExpress) return;
+                            const newState = !isExpress;
+                            setIsExpress(newState);
+                            if (newState) setSelectedSlot('');
+                        }}
+                    >
+                        {isExpress && <div className="absolute top-0 right-0 bg-amber-400 text-amber-950 text-[10px] font-bold px-2 py-1 rounded-bl-xl">SELECTED</div>}
+                        {!showExpress && <div className="absolute top-0 right-0 bg-slate-400 text-white text-[10px] font-bold px-2 py-1 rounded-bl-xl">UNAVAILABLE</div>}
+
+                        <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isExpress ? 'bg-amber-100 text-amber-600' : !showExpress ? 'bg-slate-200 text-slate-400' : 'bg-slate-100 text-slate-400'}`}>
+                                <Zap className="w-6 h-6 fill-current" />
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                    <h4 className={`font-bold ${isExpress ? 'text-slate-900' : !showExpress ? 'text-muted-foreground' : 'text-foreground'}`}>{isRepair ? 'Express Service' : 'Express Pickup'}</h4>
+                                    {!showExpress ? (
+                                        <span className="text-xs font-bold text-slate-400">CLOSED</span>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-xs ${isExpress ? 'text-slate-500' : 'text-muted-foreground'} line-through`}>₹50</span>
+                                            <span className="text-sm font-bold text-green-600">FREE</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <p className={`text-xs mt-0.5 ${isExpress ? 'text-slate-600' : 'text-muted-foreground'}`}>
+                                    {!showExpress 
+                                        ? (currentHour < 10 ? "Express pickup starts at 10 AM." : "Orders after 4 PM not valid for today.") 
+                                        : (isRepair ? 'Service within 3 hours' : "Pickup within 3 hours")
+                                    }
+                                </p>
+                                {!showExpress && <p className="text-[10px] font-medium text-amber-600 mt-1">Pickup shift ends at 7 PM.</p>}
+                            </div>
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isExpress ? 'border-amber-500 bg-amber-500' : 'border-slate-300'}`}>
+                                {isExpress && <CheckCircle className="w-4 h-4 text-white" />}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button
+                    onClick={() => setBookingStep('payment')}
+                    disabled={isSubmitting || (!selectedSlot && !isExpress)}
+                    className="w-full py-4 text-xl font-bold text-white bg-green-600 rounded-xl shadow-lg hover:bg-green-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 animate-pulse hover:animate-none"
+                >
+                    Choose Method to Receive Cash <ArrowRight className="w-5 h-5" />
+                </button>
+                <p className="text-center text-xs text-muted-foreground pb-8">
+                    By confirming, you agree to our Terms of Service
+                </p>
+            </motion.div>
+        );
+    }
 
     // -------------------------------------------------------------------------
     // RENDER: STEP 5 - PAYMENT METHOD
@@ -713,7 +721,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                 <button onClick={() => setBookingStep('schedule')} className="p-2 hover:bg-slate-100 rounded-full dark:hover:bg-slate-800 transition-colors">
                     <ArrowLeft className="w-6 h-6" />
                 </button>
-                <h2 className="text-2xl font-bold">Select Payment Option</h2>
+                <h2 className="text-2xl font-bold">Choose a Method to Receive Cash</h2>
             </div>
 
             <div className="space-y-4">
@@ -771,6 +779,65 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                     )}
                 </div>
 
+                {/* Bank Transfer Option */}
+                <div className="space-y-3">
+                    <button
+                        onClick={() => setPaymentMethod('bank_transfer')}
+                        className={`w-full flex items-start gap-4 p-5 rounded-2xl border-2 text-left transition-all ${
+                            paymentMethod === 'bank_transfer' ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/10' : 'border-border bg-card hover:border-primary/50'
+                        }`}
+                    >
+                        <div className={`p-3 rounded-full ${paymentMethod === 'bank_transfer' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                            <Wallet className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                            <span className="block font-bold text-lg">Bank Account Transfer</span>
+                            <span className="text-sm text-muted-foreground">Receive direct bank IMPS transfer instantly at your doorstep during pickup.</span>
+                        </div>
+                        {paymentMethod === 'bank_transfer' && <div className="text-primary mt-1 font-bold text-xs uppercase bg-primary/10 px-2 py-1 rounded-full">Selected</div>}
+                    </button>
+                    
+                    {paymentMethod === 'bank_transfer' && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                            className="p-5 bg-muted/30 border rounded-2xl space-y-4"
+                        >
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Account Holder Name</label>
+                                <input
+                                    type="text"
+                                    value={bankAccountName}
+                                    onChange={(e) => setBankAccountName(e.target.value)}
+                                    placeholder="Enter full name"
+                                    className="w-full h-12 px-4 rounded-xl border bg-background text-sm outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                                />
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Account Number</label>
+                                    <input
+                                        type="text"
+                                        value={bankAccount}
+                                        onChange={(e) => setBankAccount(e.target.value.replace(/\D/g, ''))}
+                                        placeholder="Enter account number"
+                                        className="w-full h-12 px-4 rounded-xl border bg-background font-mono text-sm outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">IFSC Code</label>
+                                    <input
+                                        type="text"
+                                        value={bankIfsc}
+                                        onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                                        placeholder="SBIN0012345"
+                                        className="w-full h-12 px-4 rounded-xl border bg-background font-mono text-sm outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                                    />
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </div>
+
                 {/* Amazon Voucher Option */}
                 <button
                     onClick={() => setPaymentMethod('amazon_voucher')}
@@ -808,7 +875,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
 
             <button
                 onClick={handleConfirmOrder}
-                disabled={isSubmitting || (paymentMethod === 'upi' && !upiId)}
+                disabled={isSubmitting || (paymentMethod === 'upi' && !upiId) || (paymentMethod === 'bank_transfer' && (!bankAccount || !bankIfsc || !bankAccountName))}
                 className="w-full h-14 text-lg font-bold text-white bg-green-600 rounded-xl shadow-lg hover:bg-green-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 shadow-green-600/10 hover:shadow-green-600/20"
             >
                 {isSubmitting ? <Loader2 className="animate-spin w-5 h-5" /> : (isRepair ? 'Confirm Booking' : 'Confirm & Complete Order')}
