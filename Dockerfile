@@ -29,6 +29,9 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV DATABASE_URL=$POSTGRES_PRISMA_URL
 
+# Limit Node's old space memory to avoid VPS OOM crash during build
+ENV NODE_OPTIONS="--max-old-space-size=1536"
+
 RUN npx prisma generate
 
 RUN npm run build
