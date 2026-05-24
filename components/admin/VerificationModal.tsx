@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, IndianRupee, Camera, Smartphone, Package, Check, ArrowRight, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { X, IndianRupee, Camera, Smartphone, Package, Check, ArrowRight, ArrowLeft, Loader2, AlertCircle, Wallet } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 import ChecklistWizard from '@/components/sell/ChecklistWizard';
 import { calculatePrice } from '@/actions/priceCalculation';
@@ -19,6 +19,13 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
     const [deviceCategory, setDeviceCategory] = useState<string>('smartphone');
     const [isCalculating, setIsCalculating] = useState(false);
     const [finalPrice, setFinalPrice] = useState(order.price);
+
+    const initialAnswersObj = typeof order.answers === 'string'
+        ? JSON.parse(order.answers)
+        : (order.answers || {});
+
+    const [paymentMethod, setPaymentMethod] = useState<string>(initialAnswersObj.paymentMethod || 'cash');
+    const [upiId, setUpiId] = useState<string>(initialAnswersObj.upiId || '');
     const [basePrice, setBasePrice] = useState<number | null>(null);
     const [isRevising, setIsRevising] = useState(false);
     const [revisedPriceInput, setRevisedPriceInput] = useState(order.price.toString());
@@ -221,6 +228,46 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                 </div>
                             </div>
 
+                            {/* Doorstep Payment Selection */}
+                            <div className="bg-muted/50 p-6 rounded-3xl border space-y-4">
+                                <h4 className="font-bold text-sm text-foreground uppercase tracking-wider flex items-center gap-2">
+                                    <Wallet className="w-4 h-4 text-emerald-600" /> Doorstep Payment Method
+                                </h4>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                        { id: 'cash', label: 'Cash Payment' },
+                                        { id: 'upi', label: 'UPI Transfer' },
+                                        { id: 'amazon_voucher', label: 'Amazon Gift Card' },
+                                        { id: 'flipkart_voucher', label: 'Flipkart Gift Card' },
+                                    ].map((opt) => (
+                                        <button
+                                            key={opt.id}
+                                            type="button"
+                                            onClick={() => setPaymentMethod(opt.id)}
+                                            className={`p-3 text-xs font-bold rounded-xl border-2 transition-all ${
+                                                paymentMethod === opt.id
+                                                    ? 'border-emerald-600 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400'
+                                                    : 'border-border bg-card hover:bg-muted text-muted-foreground'
+                                            }`}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                {paymentMethod === 'upi' && (
+                                    <div className="space-y-1.5 animate-in slide-in-from-top-1">
+                                        <label className="text-[10px] font-black text-muted-foreground uppercase">Recipient UPI ID</label>
+                                        <input
+                                            type="text"
+                                            value={upiId}
+                                            onChange={(e) => setUpiId(e.target.value)}
+                                            placeholder="username@bank"
+                                            className="w-full h-11 px-3 bg-card border rounded-xl font-mono text-sm outline-none focus:ring-2 focus:ring-emerald-500/20"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
                             {isRevising && (
                                 <div className="bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10 space-y-3 animate-in slide-in-from-top-2">
                                     <label className="text-xs font-bold text-amber-500 uppercase tracking-wider block">Enter Revised Price (₹)</label>
@@ -298,7 +345,12 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                         type="button"
                                         onClick={() => {
                                             if (confirm("Are you sure you want to decline this pickup?")) {
-                                                onSubmit({ action: 'decline', images, notes, finalOffer: finalPrice, imei, imei2, answers });
+                                                const updatedAnswers = {
+                                                    ...answers,
+                                                    paymentMethod,
+                                                    upiId: paymentMethod === 'upi' ? upiId : undefined
+                                                };
+                                                onSubmit({ action: 'decline', images, notes, finalOffer: finalPrice, imei, imei2, answers: updatedAnswers });
                                             }
                                         }}
                                         className="flex-1 h-14 bg-red-600 text-white font-black rounded-xl shadow-lg shadow-red-600/10 hover:bg-red-700 transition-all text-sm uppercase tracking-wider"
@@ -309,7 +361,12 @@ export default function VerificationModal({ order, onClose, onSubmit }: { order:
                                         type="button"
                                         onClick={() => {
                                             if (confirm(`Confirm pickup at ₹${finalPrice.toLocaleString()}?`)) {
-                                                onSubmit({ action: 'pickup', images, notes, finalOffer: finalPrice, imei, imei2, answers });
+                                                const updatedAnswers = {
+                                                    ...answers,
+                                                    paymentMethod,
+                                                    upiId: paymentMethod === 'upi' ? upiId : undefined
+                                                };
+                                                onSubmit({ action: 'pickup', images, notes, finalOffer: finalPrice, imei, imei2, answers: updatedAnswers });
                                             }
                                         }}
                                         className="flex-[2] h-14 bg-emerald-600 text-white font-black rounded-xl shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider"

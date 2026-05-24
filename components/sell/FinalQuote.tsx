@@ -21,7 +21,7 @@ interface FinalQuoteProps {
     initialPincode?: string;
 }
 
-type BookingStep = 'contact' | 'quote' | 'address' | 'schedule';
+type BookingStep = 'contact' | 'quote' | 'address' | 'schedule' | 'payment';
 
 export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, user, category, onRecalculate, initialPincode }: FinalQuoteProps) {
     // If repair, start at address. Else if user logged in, skip contact and go to quote. Else contact.
@@ -38,6 +38,8 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
     const [selectedDate, setSelectedDate] = useState<number>(0); // 0 to 3 index
     const [selectedSlot, setSelectedSlot] = useState<string>('');
     const [isExpress, setIsExpress] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'amazon_voucher' | 'flipkart_voucher'>('cash');
+    const [upiId, setUpiId] = useState('');
 
     // UI States
     const [isGettingLocation, setIsGettingLocation] = useState(false);
@@ -219,7 +221,9 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                 scheduledDate: dates[selectedDate].fullDate,
                 scheduledSlot: selectedSlot,
                 isExpress,
-                detectedAddress
+                detectedAddress,
+                paymentMethod,
+                upiId: paymentMethod === 'upi' ? upiId : undefined
             };
 
             await placeOrder(deviceInfo.name, deviceInfo.variant, finalPrice, address, pincode, location, finalAnswers);
@@ -685,11 +689,129 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
             </div>
 
             <button
-                onClick={handleConfirmOrder}
+                onClick={() => setBookingStep('payment')}
                 disabled={isSubmitting || (!selectedSlot && !isExpress)}
-                className="w-full py-4 text-xl font-bold text-white bg-green-600 rounded-xl shadow-lg hover:bg-green-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8"
+                className="w-full py-4 text-xl font-bold text-white bg-green-600 rounded-xl shadow-lg hover:bg-green-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 animate-pulse hover:animate-none"
             >
-                {isSubmitting ? <Loader2 className="animate-spin" /> : (isRepair ? 'Confirm Booking' : 'Confirm Pickup')}
+                Proceed to Payment <ArrowRight className="w-5 h-5" />
+            </button>
+            <p className="text-center text-xs text-muted-foreground pb-8">
+                By confirming, you agree to our Terms of Service
+            </p>
+        </motion.div>
+    );
+
+    // -------------------------------------------------------------------------
+    // RENDER: STEP 5 - PAYMENT METHOD
+    // -------------------------------------------------------------------------
+    return (
+        <motion.div
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+            className="max-w-xl mx-auto py-8 space-y-6"
+        >
+            <div className="flex items-center gap-4 mb-4">
+                <button onClick={() => setBookingStep('schedule')} className="p-2 hover:bg-slate-100 rounded-full dark:hover:bg-slate-800 transition-colors">
+                    <ArrowLeft className="w-6 h-6" />
+                </button>
+                <h2 className="text-2xl font-bold">Select Payment Option</h2>
+            </div>
+
+            <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">Choose how you would like to be paid once we pick up your device.</p>
+                
+                {/* Cash Option */}
+                <button
+                    onClick={() => setPaymentMethod('cash')}
+                    className={`w-full flex items-start gap-4 p-5 rounded-2xl border-2 text-left transition-all ${
+                        paymentMethod === 'cash' ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/10' : 'border-border bg-card hover:border-primary/50'
+                    }`}
+                >
+                    <div className={`p-3 rounded-full ${paymentMethod === 'cash' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                        <Wallet className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                        <span className="block font-bold text-lg">Instant Doorstep Cash</span>
+                        <span className="text-sm text-muted-foreground">Get paid in cash instantly at your doorstep during device inspection.</span>
+                    </div>
+                    {paymentMethod === 'cash' && <div className="text-primary mt-1 font-bold text-xs uppercase bg-primary/10 px-2 py-1 rounded-full">Selected</div>}
+                </button>
+
+                {/* UPI Option */}
+                <div className="space-y-3">
+                    <button
+                        onClick={() => setPaymentMethod('upi')}
+                        className={`w-full flex items-start gap-4 p-5 rounded-2xl border-2 text-left transition-all ${
+                            paymentMethod === 'upi' ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/10' : 'border-border bg-card hover:border-primary/50'
+                        }`}
+                    >
+                        <div className={`p-3 rounded-full ${paymentMethod === 'upi' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                            <Zap className="w-6 h-6 fill-current" />
+                        </div>
+                        <div className="flex-1">
+                            <span className="block font-bold text-lg">Instant UPI Transfer</span>
+                            <span className="text-sm text-muted-foreground">Receive direct bank transfer to Google Pay, PhonePe, or Paytm UPI instantly.</span>
+                        </div>
+                        {paymentMethod === 'upi' && <div className="text-primary mt-1 font-bold text-xs uppercase bg-primary/10 px-2 py-1 rounded-full">Selected</div>}
+                    </button>
+                    
+                    {paymentMethod === 'upi' && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                            className="p-4 bg-muted/30 border rounded-xl space-y-2"
+                        >
+                            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Enter UPI ID (e.g. name@okhdfcbank)</label>
+                            <input
+                                type="text"
+                                value={upiId}
+                                onChange={(e) => setUpiId(e.target.value)}
+                                placeholder="username@bank"
+                                className="w-full h-12 px-4 rounded-xl border bg-background font-mono text-sm outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                            />
+                        </motion.div>
+                    )}
+                </div>
+
+                {/* Amazon Voucher Option */}
+                <button
+                    onClick={() => setPaymentMethod('amazon_voucher')}
+                    className={`w-full flex items-start gap-4 p-5 rounded-2xl border-2 text-left transition-all ${
+                        paymentMethod === 'amazon_voucher' ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/10' : 'border-border bg-card hover:border-primary/50'
+                    }`}
+                >
+                    <div className={`p-3 rounded-full ${paymentMethod === 'amazon_voucher' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                        <CheckCircle className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                        <span className="block font-bold text-lg">Amazon Pay Gift Voucher</span>
+                        <span className="text-sm text-muted-foreground">Receive an instant Amazon Pay gift card code with 100% face value.</span>
+                    </div>
+                    {paymentMethod === 'amazon_voucher' && <div className="text-primary mt-1 font-bold text-xs uppercase bg-primary/10 px-2 py-1 rounded-full">Selected</div>}
+                </button>
+
+                {/* Flipkart Voucher Option */}
+                <button
+                    onClick={() => setPaymentMethod('flipkart_voucher')}
+                    className={`w-full flex items-start gap-4 p-5 rounded-2xl border-2 text-left transition-all ${
+                        paymentMethod === 'flipkart_voucher' ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/10' : 'border-border bg-card hover:border-primary/50'
+                    }`}
+                >
+                    <div className={`p-3 rounded-full ${paymentMethod === 'flipkart_voucher' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                        <CheckCircle className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                        <span className="block font-bold text-lg">Flipkart Electronic Gift Voucher</span>
+                        <span className="text-sm text-muted-foreground">Receive an instant Flipkart e-gift card code directly to your email/phone.</span>
+                    </div>
+                    {paymentMethod === 'flipkart_voucher' && <div className="text-primary mt-1 font-bold text-xs uppercase bg-primary/10 px-2 py-1 rounded-full">Selected</div>}
+                </button>
+            </div>
+
+            <button
+                onClick={handleConfirmOrder}
+                disabled={isSubmitting || (paymentMethod === 'upi' && !upiId)}
+                className="w-full h-14 text-lg font-bold text-white bg-green-600 rounded-xl shadow-lg hover:bg-green-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 shadow-green-600/10 hover:shadow-green-600/20"
+            >
+                {isSubmitting ? <Loader2 className="animate-spin w-5 h-5" /> : (isRepair ? 'Confirm Booking' : 'Confirm & Complete Order')}
             </button>
             <p className="text-center text-xs text-muted-foreground pb-8">
                 By confirming, you agree to our Terms of Service

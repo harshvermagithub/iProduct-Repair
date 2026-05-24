@@ -1,4 +1,4 @@
-import { AlertTriangle, Smartphone, FileText, Clock, Box, MapPin, User, Phone, Mail } from 'lucide-react';
+import { AlertTriangle, Smartphone, FileText, Clock, Box, MapPin, User, Phone, Mail, Wallet } from 'lucide-react';
 
 interface OrderDetailsProps {
     order: {
@@ -27,6 +27,7 @@ export default function OrderDetails({ order }: OrderDetailsProps) {
         { label: 'Warranty Period', value: answers.warranty, icon: <Clock className="w-4 h-4" /> },
         { label: 'Original Bill', value: answers.bill, icon: <FileText className="w-4 h-4" /> },
         { label: 'Screen Type', value: answers.screen_type, icon: <Smartphone className="w-4 h-4" /> },
+        { label: 'Payment Option', value: answers.paymentMethod ? (answers.paymentMethod + (answers.upiId ? ` (${answers.upiId})` : '')) : undefined, icon: <Wallet className="w-4 h-4" /> },
     ];
 
     return (
