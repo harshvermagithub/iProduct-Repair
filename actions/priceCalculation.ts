@@ -171,6 +171,37 @@ export async function calculatePrice(basePrice: number, answers: Record<string, 
             if (!accessories?.includes('strap')) finalPrice -= 200;
             if (!accessories?.includes('box')) finalPrice -= 300;
             if (!accessories?.includes('bill')) finalPrice -= basePrice * 0.15;
+        } else if (category === 'tv' || category === 'smarttv') {
+            // Screen Condition Deductions
+            const screen = answers.physical_condition as string;
+            if (screen === 'good') finalPrice -= basePrice * 0.10;
+            else if (screen === 'average') finalPrice -= basePrice * 0.20;
+            else if (screen === 'damaged') finalPrice -= basePrice * 0.50;
+
+            // Body Condition Deductions
+            const body = answers.body_condition as string;
+            if (body === 'good') finalPrice -= basePrice * 0.05;
+            else if (body === 'average') finalPrice -= basePrice * 0.12;
+            else if (body === 'below_average') finalPrice -= basePrice * 0.25;
+
+            // Functional Problems (5% per issue)
+            const problems = answers.functional_issues as string[] | undefined;
+            if (problems && problems.length > 0) {
+                finalPrice -= (basePrice * 0.05 * problems.length);
+            }
+
+            // Warranty (Bonus)
+            const warranty = answers.warranty as string;
+            if (warranty === '0_3_months') finalPrice += basePrice * 0.05;
+            else if (warranty === '3_6_months') finalPrice += basePrice * 0.07;
+            else if (warranty === '6_11_months') finalPrice += basePrice * 0.10;
+
+            // Accessories (Deductions if missing)
+            const accessories = answers.accessories as string[] | undefined;
+            if (!accessories?.includes('remote')) finalPrice -= 800;
+            if (!accessories?.includes('stand')) finalPrice -= 500;
+            if (!accessories?.includes('bill')) finalPrice -= basePrice * 0.15;
+            if (!accessories?.includes('box')) finalPrice -= 400;
         }
     } else {
         // Apply DB Rules

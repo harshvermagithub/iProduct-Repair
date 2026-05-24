@@ -425,13 +425,82 @@ export const questionnaireSteps = {
     ],
     'tv': [
         {
-            id: 'core_functionality',
-            title: 'Smart TV Check',
-            subtitle: 'How is the TV condition?',
-            questions: [
-                { id: 'display', text: 'Is the display perfect?', subtext: 'No lines, dots, or color issues.', type: 'boolean' },
-                { id: 'remote', text: 'Original Remote available?', subtext: '', type: 'boolean' },
-                { id: 'wifi', text: 'Smart features (WiFi) working?', subtext: '', type: 'boolean' }
+            id: 'physical_condition',
+            title: 'Screen / Display Condition',
+            subtitle: 'Select the screen\'s physical and display condition',
+            type: 'single-select',
+            options: [
+                { id: 'flawless', label: 'Flawless', description: 'Perfect screen, no scratches or lines', icon: 'Sparkles' },
+                { id: 'good', label: 'Good', description: 'Minor hairline scratches on screen', icon: 'Smile' },
+                { id: 'average', label: 'Average', description: 'Visible deep scratches on screen', icon: 'MinusCircle' },
+                { id: 'damaged', label: 'Damaged Screen', description: 'Screen crack, dead pixels, horizontal/vertical lines, color patches', icon: 'AlertTriangle' },
+            ]
+        },
+        {
+            id: 'body_condition',
+            title: 'Body & Frame Condition',
+            subtitle: 'Select the condition of the TV frame, bezel, and back panel',
+            type: 'single-select',
+            options: [
+                { id: 'flawless', label: 'Flawless', description: 'No scratches, dents, or scuffs', icon: 'Sparkles' },
+                { id: 'good', label: 'Good', description: 'Minor scratches or scuffs, no dents/cracks', icon: 'Smile' },
+                { id: 'average', label: 'Average', description: 'Visible major scratches, scuffs or minor dents', icon: 'MinusCircle' },
+                { id: 'below_average', label: 'Below Average', description: 'Heavy dents, deep cracks, or broken frame/bezel', icon: 'AlertTriangle' },
+            ]
+        },
+        {
+            id: 'functional_issues',
+            title: 'Functional Problems',
+            subtitle: 'Select any issues your TV has (Check if applicable)',
+            type: 'multi-select-grid',
+            options: [
+                { id: 'wifi', label: 'WiFi / Smart features Faulty', icon: 'Wifi' },
+                { id: 'bluetooth', label: 'Bluetooth Faulty', icon: 'Bluetooth' },
+                { id: 'ports', label: 'HDMI / USB Ports Faulty', icon: 'Plug' },
+                { id: 'sound', label: 'Speakers / Sound Faulty', icon: 'VolumeX' },
+                { id: 'remote_sensor', label: 'Remote Sensor Not Responding', icon: 'Tv' },
+                { id: 'power_fault', label: 'Power Supply / Auto Shutdown Issues', icon: 'PowerOff' },
+                { id: 'display_flicker', label: 'Screen Flicker / Dim Display', icon: 'SunDim' },
+            ]
+        },
+        {
+            id: 'device_details',
+            title: 'Device Details',
+            subtitle: 'Please confirm accessories and warranty details',
+            type: 'combined-step',
+            sections: [
+                {
+                    id: 'purchase_location',
+                    title: 'Where was the TV purchased?',
+                    type: 'single-select',
+                    options: [
+                        { id: 'india', label: 'Purchased in India', icon: 'MapPin' },
+                        { id: 'global', label: 'Purchased Globally', icon: 'Globe' }
+                    ]
+                },
+                {
+                    id: 'accessories',
+                    title: 'Do you have the following accessories?',
+                    type: 'multi-select',
+                    options: [
+                        { id: 'remote', label: 'Original Remote', icon: 'Tv' },
+                        { id: 'stand', label: 'Table Top Stand', icon: 'Box' },
+                        { id: 'wall_mount', label: 'Wall Mount', icon: 'Grid' },
+                        { id: 'bill', label: 'Original Bill with GST', icon: 'FileText' },
+                        { id: 'box', label: 'Original Box', icon: 'Box' },
+                    ]
+                },
+                {
+                    id: 'warranty',
+                    title: 'Warranty Period',
+                    type: 'single-select',
+                    options: [
+                        { id: '0_3_months', label: '0 - 3 Months', description: 'Valid for 0 to 3 months', icon: 'Clock' },
+                        { id: '3_6_months', label: '3 - 6 Months', description: 'Valid for 3 to 6 months', icon: 'Clock' },
+                        { id: '6_11_months', label: '6 - 11 Months', description: 'Valid for 6 to 11 months', icon: 'Clock' },
+                        { id: 'no', label: 'No Warranty', description: 'Above 11 months or expired', icon: 'XCircle' },
+                    ]
+                }
             ]
         }
     ],
