@@ -13,16 +13,33 @@ export default async function CitiesAdminPage() {
     const currentUser = await prisma.user.findUnique({ where: { id: session.user.id } });
     const isZonalHead = currentUser?.role === 'ZONAL_HEAD';
 
-    const defaultCities = ['Madurai', 'Chennai', 'Coimbatore'];
+    const defaultCities = ['Madurai', 'Chennai', 'Coimbatore', 'Bangalore'];
 
-    // Auto-seed default cities if they don't exist
+    // Auto-seed default cities and their full master pincode lists if they don't exist/are empty
     if (!isZonalHead) {
         for (const city of defaultCities) {
-            await prisma.city.upsert({
-                where: { name: city },
-                update: {},
-                create: { name: city, isActive: true }
-            });
+            let defaultPincodes: string[] = [];
+            if (city === 'Bangalore') {
+                defaultPincodes = Array.from({ length: 110 }, (_, i) => `560${String(i + 1).padStart(3, '0')}`);
+            } else if (city === 'Chennai') {
+                defaultPincodes = Array.from({ length: 130 }, (_, i) => `600${String(i + 1).padStart(3, '0')}`);
+            } else if (city === 'Coimbatore') {
+                defaultPincodes = Array.from({ length: 60 }, (_, i) => `641${String(i + 1).padStart(3, '0')}`);
+            } else if (city === 'Madurai') {
+                defaultPincodes = Array.from({ length: 25 }, (_, i) => `625${String(i + 1).padStart(3, '0')}`);
+            }
+
+            const existingCity = await prisma.city.findUnique({ where: { name: city } });
+            if (!existingCity) {
+                await prisma.city.create({
+                    data: { name: city, isActive: true, pincodes: defaultPincodes }
+                });
+            } else if (existingCity.pincodes.length === 0) {
+                await prisma.city.update({
+                    where: { id: existingCity.id },
+                    data: { pincodes: defaultPincodes }
+                });
+            }
         }
     }
 

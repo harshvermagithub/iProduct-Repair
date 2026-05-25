@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Settings, X, ShieldAlert } from 'lucide-react';
 import PincodeInput from './PincodeInput';
-import { updateCityPincodes, toggleCityActive, updatePartnerPincodes } from '@/app/admin/cities/actions';
+import { updateCityPincodes, toggleCityActive, updatePartnerPincodes, removePartnerFromCity } from '@/app/admin/cities/actions';
 
 export default function CityCard({ city, partners, zonalHeads, isZonalHead }: any) {
     const [showSettings, setShowSettings] = useState(false);
@@ -50,7 +50,22 @@ export default function CityCard({ city, partners, zonalHeads, isZonalHead }: an
                         {partners.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
                                 {partners.map((p: any) => (
-                                    <div key={p.id} className="text-[11px] font-bold bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-100">{p.name}</div>
+                                    <div key={p.id} className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-100">
+                                        <span className="text-[11px] font-bold">{p.name}</span>
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                if (confirm(`Are you sure you want to remove partner ${p.name} from ${city.name}?`)) {
+                                                    await removePartnerFromCity(p.id);
+                                                    alert(`${p.name} has been removed from ${city.name}.`);
+                                                }
+                                            }}
+                                            className="hover:text-red-500 rounded p-0.5 transition-colors"
+                                            title={`Remove ${p.name} from ${city.name}`}
+                                        >
+                                            <X className="w-3 h-3 shrink-0" />
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
                         ) : (
