@@ -14,7 +14,7 @@ export interface SessionPayload {
     exp?: number;
 }
 
-export const ADMIN_EMAILS = ['admin@fonzkart.com', 'mobilesouls.in@gmail.com'];
+export const ADMIN_EMAILS = ['admin@iproductrepair.com', 'mobilesouls.in@gmail.com'];
 
 export function isAdmin(user: SessionUser) {
     if (!user) return false;

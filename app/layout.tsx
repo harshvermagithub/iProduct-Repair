@@ -13,8 +13,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fonzkart - Sell Your Used Smartphone",
-  description: "Get the best price for your used smartphone instantly.",
+  title: "iProduct Repair - Apple Device Repair & Refurbished Devices",
+  description: "Premium Apple Service Center in Bangalore. Book doorstep iPhone, MacBook, iPad, iMac, & Apple Watch repair, or shop high-quality certified pre-owned devices at very cheap cost.",
+  icons: {
+    icon: [
+      { url: '/icon.png', type: 'image/png', sizes: '1024x1024' },
+    ],
+    apple: [
+      { url: '/icon.png', type: 'image/png', sizes: '1024x1024' },
+    ],
+    shortcut: '/icon.png',
+  },
 };
 
 import Header from "@/components/Header";

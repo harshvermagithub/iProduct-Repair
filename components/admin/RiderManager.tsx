@@ -124,7 +124,7 @@ export default function RiderManager({ initialRiders, partners = [], currentUser
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full h-10 px-3 border rounded-lg bg-background outline-none focus:border-primary transition-all text-sm"
-                                placeholder="rider@fonzkart.in"
+                                placeholder="rider@iproductrepair.com"
                             />
                         </div>
                         {currentUserRole !== 'PARTNER' && partners.length > 0 && (
@@ -163,7 +163,7 @@ export default function RiderManager({ initialRiders, partners = [], currentUser
                                 value={grantEmail}
                                 onChange={(e) => setGrantEmail(e.target.value)}
                                 className="w-full h-10 px-3 border rounded-lg bg-background outline-none focus:border-primary transition-all text-sm"
-                                placeholder="rider@fonzkart.in"
+                                placeholder="rider@iproductrepair.com"
                                 required
                             />
                         </div>

@@ -7,7 +7,7 @@ import { NotificationBell } from './NotificationBell';
 import { Search, UserCircle, LogOut, User, Settings, ChevronDown, Activity, Volume2, VolumeX } from 'lucide-react';
 import { useNotifications } from '../NotificationProvider';
 import { Logo } from '../Logo';
-import { logout } from '@/lib/session';
+import { logout } from '@/actions/auth';
 
 function AudioAlertToggle() {
     const { audioEnabled, setAudioEnabled } = useNotifications();

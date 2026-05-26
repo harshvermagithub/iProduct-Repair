@@ -209,7 +209,7 @@ export const db = {
                         <p style="margin: 5px 0;"><b>Customer:</b> ${newOrder.user.name}</p>
                     </div>
                     <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/orders" style="display: inline-block; background-color: #10b981; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px;">View in Dashboard</a>
-                    <p style="color: #888; font-size: 12px; margin-top: 25px;">Fonzkart Logistics Management System</p>
+                    <p style="color: #888; font-size: 12px; margin-top: 25px;">iProduct Repair Logistics Management System</p>
                 </div>
             `;
 

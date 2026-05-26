@@ -12,7 +12,8 @@ export function NavLinks({ session, isAdminUser }: { session: any, isAdminUser: 
     const pathname = usePathname();
 
     const links = [
-        { href: '/sell', label: 'Check Price' },
+        { href: '/sell?category=repair', label: 'Book Repair' },
+        { href: '/shop', label: 'Shop Refurbished' },
         { href: '/orders', label: 'My Orders' },
     ];
 

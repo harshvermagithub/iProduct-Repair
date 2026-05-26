@@ -48,7 +48,7 @@ export default async function CitiesAdminPage() {
                             Service <span className="text-emerald-500 underline decoration-8 decoration-emerald-500/20 underline-offset-8">Cities</span>
                         </h1>
                         <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                            Expand Fonzkart's footprint. Register new operational hubs and manage the master pincode directory for each territory below.
+                            Expand iProduct Repair's footprint. Register new operational hubs and manage the master pincode directory for each territory below.
                         </p>
                     </div>
 

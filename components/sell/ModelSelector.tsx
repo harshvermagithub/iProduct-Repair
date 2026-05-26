@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from "framer-motion";
-import { ArrowLeft, Search, X } from "lucide-react";
+import { ArrowLeft, Search, X, Laptop, Smartphone, Tablet, Watch, Monitor, Headphones } from "lucide-react";
 import Image from "next/image";
 import { Model } from '@/lib/store';
 import { fetchModels } from '@/actions/catalog';
@@ -14,7 +14,17 @@ interface ModelSelectorProps {
     originalCategory?: string;
     onSelect: (model: Model) => void;
     onBack: () => void;
+    isRepair?: boolean;
 }
+
+const REPAIR_CATEGORIES = [
+    { id: 'laptop', label: 'MacBook', icon: Laptop },
+    { id: 'smartphone', label: 'iPhone', icon: Smartphone },
+    { id: 'tablet', label: 'iPad', icon: Tablet },
+    { id: 'watch', label: 'Apple Watch', icon: Watch },
+    { id: 'desktop', label: 'iMac & Mac', icon: Monitor },
+    { id: 'earbuds', label: 'AirPods', icon: Headphones },
+];
 
 const EXCLUDED_MODELS = new Set([
     "iPhone 17", "iPhone 17 Air",
@@ -64,17 +74,24 @@ const ModelImage = ({ src, alt, priority = false, scale = 1 }: { src: string, al
     );
 };
 
-export default function ModelSelector({ brandId, category, originalCategory, onSelect, onBack }: ModelSelectorProps) {
+export default function ModelSelector({ brandId, category, originalCategory, onSelect, onBack, isRepair }: ModelSelectorProps) {
+    const [activeCategory, setActiveCategory] = useState(category || 'laptop');
     const [models, setModels] = useState<Model[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeSeries, setActiveSeries] = useState<string | null>(null);
 
     useEffect(() => {
+        if (category) {
+            setActiveCategory(category);
+        }
+    }, [category]);
+
+    useEffect(() => {
         let mounted = true;
         setIsLoading(true);
 
-        fetchModels(brandId, category)
+        fetchModels(brandId, activeCategory)
             .then(data => {
                 if (mounted) {
                     let processedData = data;
@@ -119,7 +136,7 @@ export default function ModelSelector({ brandId, category, originalCategory, onS
             });
 
         return () => { mounted = false; };
-    }, [brandId, category]);
+    }, [brandId, activeCategory]);
 
     // Extract Series Logic
     const seriesList = useMemo(() => {
@@ -495,6 +512,34 @@ export default function ModelSelector({ brandId, category, originalCategory, onS
                     </button>
                     <h2 className="text-2xl font-bold">Select Model</h2>
                 </div>
+
+                {isRepair && (
+                    <div className="w-full overflow-x-auto pb-2 scrollbar-none">
+                        <div className="flex gap-2.5 p-1.5 bg-slate-900/5 dark:bg-white/5 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl min-w-max">
+                            {REPAIR_CATEGORIES.map((tab) => {
+                                const IconComponent = tab.icon;
+                                const isActive = activeCategory === tab.id;
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => {
+                                            setActiveCategory(tab.id);
+                                            setActiveSeries(null); // Clear series filter
+                                        }}
+                                        className={`relative flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                                            isActive
+                                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20 scale-[1.02]'
+                                                : 'text-muted-foreground hover:text-foreground hover:bg-slate-900/5 dark:hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <IconComponent className="w-4.5 h-4.5" />
+                                        <span>{tab.label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
 
                 {/* Search Bar */}
                 <div className="relative">

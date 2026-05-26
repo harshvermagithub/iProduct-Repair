@@ -141,7 +141,7 @@ export default function RiderOrderList({
                                         <div>
                                             <p className="font-bold text-base sm:text-lg text-foreground line-clamp-1">{order.device}</p>
                                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1 sm:mt-1.5 font-mono text-xs text-muted-foreground">
-                                                <span>FZK-{order.orderNumber || ''}</span>
+                                                <span>IPR-{order.orderNumber || ''}</span>
                                                 <span className="hidden sm:inline">•</span>
                                                 <span>{new Date(order.date).toLocaleDateString()}</span>
                                             </div>

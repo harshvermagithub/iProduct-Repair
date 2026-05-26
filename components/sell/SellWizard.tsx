@@ -33,20 +33,22 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
 
     const resolveCategory = (cat?: string) => {
         if (!cat) return 'smartphone';
-        if (cat === 'repair') return 'smartphone';
+        if (cat === 'repair') return 'laptop';
         return cat;
     };
 
     const resolvedCategory = resolveCategory(initialCategory);
 
     // Initial Brand Logic
-    const preSelectedBrand = initialBrandId ? initialBrands.find(b => b.id === initialBrandId) : null;
+    // If it's a repair, we exclusively use Apple MacBooks, so auto-select Apple
+    const autoAppleForRepair = initialCategory === 'repair' ? initialBrands.find(b => b.name.toLowerCase() === 'apple') : null;
+    const preSelectedBrand = initialBrandId ? initialBrands.find(b => b.id === initialBrandId) : autoAppleForRepair;
 
     const [step, setStep] = useState<Step>(
-        preSelectedBrand ? 'model' : (initialCategory ? 'brand' : 'category')
+        preSelectedBrand ? 'model' : (initialCategory && initialCategory !== 'repair' ? 'brand' : 'category')
     );
     const [category, setCategory] = useState<string>(resolvedCategory);
-    const [isRepair, setIsRepair] = useState(initialCategory === 'repair' || initialCategory === 'unbreakable-screenguard');
+    const [isRepair, setIsRepair] = useState(initialCategory === 'repair');
 
     // We need to maintain local brands state in case category changes
     const [brands, setBrands] = useState<Brand[]>(initialBrands);
@@ -113,34 +115,30 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
         triggerScrollReset();
     }, [step]);
 
-    // Safety net: If user reloads the page on a deep hash but state is empty, push them back
     useEffect(() => {
         if (step === 'model' && !selectedBrand) {
-            window.location.hash = 'brand';
+            window.location.hash = (category === 'repair' || initialCategory === 'repair') ? 'category' : 'brand';
         } else if ((step === 'variant' || step === 'quote_preview' || step === 'checklist') && (!selectedModel || !selectedBrand)) {
-            window.location.hash = 'brand';
-        } else if (step === 'final_quote' && category !== 'unbreakable-screenguard' && (!selectedModel || !selectedVariant)) {
-            window.location.hash = 'brand';
+            window.location.hash = (category === 'repair' || initialCategory === 'repair') ? 'category' : 'brand';
+        } else if (step === 'final_quote' && (!selectedModel || !selectedVariant)) {
+            window.location.hash = (category === 'repair' || initialCategory === 'repair') ? 'category' : 'brand';
         }
-    }, [step, selectedBrand, selectedModel, selectedVariant, category]);
+    }, [step, selectedBrand, selectedModel, selectedVariant, category, initialCategory]);
 
     const handleCategorySelect = async (cat: string) => {
         let targetCategory = cat;
         if (cat === 'repair') {
             setIsRepair(true);
-            targetCategory = 'smartphone'; // Default to smartphone repair for now
-        } else if (cat === 'unbreakable-screenguard') {
-            setIsRepair(true); // Re-use repair boolean to skip quote UI logic and go straight to booking
-            setCategory('unbreakable-screenguard');
-            
-            // Only fetch specific brands to mimic actual screen guard support
-            const allBrands = await fetchBrands('smartphone');
-            const requiredBrands = ['Apple', 'Samsung', 'OnePlus', 'Google'];
-            const newBrands = allBrands.filter(b => requiredBrands.includes(b.name));
-            
+            targetCategory = 'laptop'; // Default to MacBook repair
+            const newBrands = await fetchBrands(targetCategory);
             setBrands(newBrands);
-            window.location.hash = 'brand';
-            return;
+            const appleBrand = newBrands.find(b => b.name.toLowerCase() === 'apple');
+            if (appleBrand) {
+                setSelectedBrand(appleBrand);
+                setCategory(targetCategory);
+                window.location.hash = 'model';
+                return;
+            }
         } else {
             setIsRepair(false);
         }
@@ -161,14 +159,8 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
     const handleModelSelect = (model: Model) => {
         setSelectedModel(model);
         setSkippedVariant(false);
-
-        if (category === 'unbreakable-screenguard') {
-            if (user) {
-                window.location.hash = 'final_quote';
-            } else {
-                window.location.hash = 'login_check';
-            }
-            return;
+        if (model.category) {
+            setCategory(model.category);
         }
 
         window.location.hash = 'variant';
@@ -232,16 +224,17 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
                     <motion.div key="model" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                         <ModelSelector
                             brandId={selectedBrand.id}
-                            category={category === 'unbreakable-screenguard' ? 'smartphone' : category}
+                            category={category}
                             originalCategory={category}
                             onSelect={handleModelSelect}
                             onBack={() => {
-                                if (initialBrandId) {
+                                if (initialBrandId || initialCategory === 'repair') {
                                     router.back();
                                 } else {
                                     window.history.back();
                                 }
                             }}
+                            isRepair={isRepair}
                         />
                     </motion.div>
                 )}
@@ -296,21 +289,20 @@ export default function SellWizard({ initialBrands, initialCategory, initialBran
                 )}
 
 
-                {step === 'final_quote' && (category === 'unbreakable-screenguard' ? selectedModel : (selectedModel && selectedVariant)) && (
+                {step === 'final_quote' && selectedModel && selectedVariant && (
                     <motion.div key="final_quote" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                         <FinalQuote
-                            basePrice={category === 'unbreakable-screenguard' ? 1999 : (selectedVariant?.basePrice || 0)}
+                            basePrice={selectedVariant?.basePrice || 0}
                             answers={answers}
                             deviceInfo={{
                                 name: displayDeviceName,
-                                variant: category === 'unbreakable-screenguard' ? 'Unbreakable Screen Guard' : (displayVariant || '')
+                                variant: displayVariant || ''
                             }}
                             category={category}
                             isRepair={isRepair}
                             user={user}
                             onRecalculate={() => {
-                                if (category === 'unbreakable-screenguard') window.location.hash = 'model';
-                                else window.location.hash = 'checklist';
+                                window.location.hash = 'checklist';
                             }}
                         />
                     </motion.div>

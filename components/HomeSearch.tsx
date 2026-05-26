@@ -65,14 +65,14 @@ export function HomeSearch() {
     return (
         <div className="relative z-50 w-full mx-auto" onClick={e => e.stopPropagation()}>
             <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl blur-lg transition-opacity group-hover:opacity-100 opacity-0" />
-                <div className="relative flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden focus-within:ring-2 focus-within:ring-green-500/50 transition-all">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-2xl blur-lg transition-opacity group-hover:opacity-100 opacity-0" />
+                <div className="relative flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
                     <div className="pl-4 text-slate-400">
                         <Search className="w-5 h-5" />
                     </div>
                     <input
                         type="text"
-                        placeholder="Search your phone to sell..."
+                        placeholder="Search your Apple device to repair or buy..."
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onFocus={() => query.length >= 2 && setShowResults(true)}
@@ -80,7 +80,7 @@ export function HomeSearch() {
                     />
                     {isLoading && (
                         <div className="pr-4">
-                            <Loader2 className="w-5 h-5 animate-spin text-green-500" />
+                            <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
                         </div>
                     )}
                 </div>

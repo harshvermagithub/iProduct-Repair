@@ -21,13 +21,13 @@ export default function QuotePreview({ basePrice, deviceDetails, onGetExactValue
             </div>
 
             <div className="text-center space-y-2">
-                <h2 className="text-3xl font-bold">{isRepair ? 'Estimated Repair Cost' : 'Your Device Value'}</h2>
+                <h2 className="text-3xl font-bold">Estimated Repair Cost</h2>
                 <p className="text-muted-foreground">{deviceDetails}</p>
             </div>
             <div className="text-center space-y-4">
                 <div className="text-5xl font-extrabold text-primary">
                     ₹{basePrice.toLocaleString()}
-                    <span className="text-lg text-muted-foreground font-normal ml-2">max value</span>
+                    <span className="text-lg text-muted-foreground font-normal ml-2">estimated</span>
                 </div>
             </div>
 
@@ -35,12 +35,12 @@ export default function QuotePreview({ basePrice, deviceDetails, onGetExactValue
                 <h3 className="font-semibold text-lg">Why answer a few questions?</h3>
                 <ul className="space-y-3">
                     {[
-                        "Get the exact value for your device condition",
-                        "Avoid re-negotiation at doorstep",
-                        "Faster payment processing"
+                        "Get an exact repair quote for your device issues",
+                        "Ensure we bring the right certified parts",
+                        "Guaranteed 3-hour doorstep repair"
                     ].map((item, i) => (
                         <li key={i} className="flex items-center gap-3">
-                            <div className="bg-green-100 p-1 rounded-full"><Check className="w-4 h-4 text-green-600" /></div>
+                            <div className="bg-blue-500/10 p-1 rounded-full"><Check className="w-4 h-4 text-blue-400" /></div>
                             <span>{item}</span>
                         </li>
                     ))}
@@ -51,7 +51,7 @@ export default function QuotePreview({ basePrice, deviceDetails, onGetExactValue
                 onClick={onGetExactValue}
                 className="w-full py-4 text-xl font-bold text-white bg-primary rounded-xl shadow-lg hover:bg-primary/90 hover:scale-[1.02] transition-all"
             >
-                Get Exact Value
+                Get Exact Repair Cost
             </button>
         </div>
     );

@@ -22,9 +22,9 @@ export default async function OrdersPage() {
                 <div className="text-center py-20 bg-accent/20 rounded-2xl">
                     <Smartphone className="w-16 h-16 mx-auto text-muted-foreground mb-4 opacity-50" />
                     <p className="text-lg font-medium">No orders yet</p>
-                    <p className="text-muted-foreground mb-6">Start selling your old phones for cash!</p>
-                    <Link href="/sell" className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-bold hover:bg-primary/90 transition-colors">
-                        Sell Now
+                    <p className="text-muted-foreground mb-6">Book a doorstep repair to get started!</p>
+                    <Link href="/sell?category=repair" className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-bold hover:bg-primary/90 transition-colors">
+                        Book Repair
                     </Link>
                 </div>
             ) : (

@@ -23,7 +23,7 @@ export default function InitialLoader() {
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.4 }} // Slightly faster exit transition too
-                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-white"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
                 >
                     <SVGLoader />
                 </motion.div>

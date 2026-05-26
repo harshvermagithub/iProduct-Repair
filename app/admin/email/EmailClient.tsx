@@ -116,7 +116,7 @@ export default function EmailClient({ role: initialRole, userEmail: initialUserE
             <div className="flex items-center gap-3">
                 <Mail className="w-6 h-6 text-emerald-600 shrink-0" />
                 <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent hidden lg:block truncate">
-                    FonzMail
+                    iProductMail
                 </h1>
             </div>
             <div className="md:hidden flex items-center gap-2">
@@ -239,7 +239,7 @@ export default function EmailClient({ role: initialRole, userEmail: initialUserE
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input 
                         type="text"
-                        placeholder="Search fonzmail..."
+                        placeholder="Search iproductmail..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full bg-slate-100/50 dark:bg-white/5 border-none rounded-2xl py-2.5 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-emerald-500/10 placeholder:text-slate-400 dark:text-white font-medium transition-all"
@@ -393,7 +393,7 @@ export default function EmailClient({ role: initialRole, userEmail: initialUserE
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Alias</label>
                                         <div className="flex items-center group transition-all">
                                             <input type="text" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="flex-1 p-4 bg-slate-50 dark:bg-white/10 text-slate-900 dark:text-white border-none rounded-l-2xl focus:ring-4 focus:ring-emerald-500/5 font-bold text-sm transition-all" placeholder="partner_name" />
-                                            <span className="inline-flex items-center px-5 h-[52px] bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-r-2xl font-black text-xs border-l border-slate-200 dark:border-white/10">@fonzkart.in</span>
+                                            <span className="inline-flex items-center px-5 h-[52px] bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-r-2xl font-black text-xs border-l border-slate-200 dark:border-white/10">@iproductrepair.com</span>
                                         </div>
                                     </div>
                                     <div className="space-y-3">
@@ -490,7 +490,7 @@ export default function EmailClient({ role: initialRole, userEmail: initialUserE
     setIsSending(true);
     try {
       const formData = new FormData();
-      formData.append('fromAccount', selectedAccount || 'support@fonzkart.in');
+      formData.append('fromAccount', selectedAccount || 'support@iproductrepair.com');
       formData.append('to', composeTo);
       formData.append('subject', composeSubject);
       formData.append('text', composeBody);

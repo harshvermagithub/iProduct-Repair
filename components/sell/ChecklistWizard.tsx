@@ -175,49 +175,67 @@ export default function ChecklistWizard({ deviceInfo, category, onComplete, onBa
                         ))}
 
                         {(currentStep.type === 'multi-select' || currentStep.type === 'multi-select-grid' || currentStep.type === 'single-select') && (
-                            <div className={`grid gap-4 ${currentStep.type === 'multi-select-grid' || currentStep.type === 'single-select' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2' : 'grid-cols-1 md:grid-cols-2'}`}>
-                                {currentStep.options?.map((opt: { id: string; label: string; description?: string; icon?: string }) => {
-                                    const isMulti = currentStep.type !== 'single-select';
-                                    const isSelected = isMulti
-                                        ? (answers[currentStep.id] as string[])?.includes(opt.id)
-                                        : answers[currentStep.id] === opt.id;
+                            <>
+                                <div className={`grid gap-4 ${currentStep.type === 'multi-select-grid' || currentStep.type === 'single-select' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2' : 'grid-cols-1 md:grid-cols-2'}`}>
+                                    {currentStep.options?.map((opt: { id: string; label: string; description?: string; icon?: string }) => {
+                                        const isMulti = currentStep.type !== 'single-select';
+                                        const isSelected = isMulti
+                                            ? (answers[currentStep.id] as string[])?.includes(opt.id)
+                                            : answers[currentStep.id] === opt.id;
 
-                                    return (
-                                        <button
-                                            key={opt.id}
-                                            onClick={() => {
-                                                if (isMulti) {
-                                                    const current = (answers[currentStep.id] as string[]) || [];
-                                                    const updated = current.includes(opt.id)
-                                                        ? current.filter((id: string) => id !== opt.id)
-                                                        : [...current, opt.id];
-                                                    handleAnswer(currentStep.id, updated);
-                                                } else {
-                                                    // Single select behavior
-                                                    handleAnswer(currentStep.id, opt.id);
-                                                }
-                                            }}
-                                            className={`relative flex flex-col items-start text-left p-6 border-2 rounded-xl transition-all ${isSelected ? 'border-primary bg-primary/5 shadow-md' : 'border-input hover:border-primary/50 hover:shadow-sm'}`}
-                                        >
-                                            <div className="flex w-full items-start gap-4">
-                                                <div className={`p-3 rounded-full flex-shrink-0 ${isSelected ? 'bg-primary/10' : 'bg-muted'}`}>
-                                                    <span className={isSelected ? 'text-primary' : 'text-muted-foreground'}>
-                                                        {opt.icon ? renderIcon(opt.icon) : (isMulti ? <AlertTriangle className="w-6 h-6" /> : <CheckCircle2 className="w-6 h-6" />)}
-                                                    </span>
+                                        return (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => {
+                                                    if (isMulti) {
+                                                        const current = (answers[currentStep.id] as string[]) || [];
+                                                        const updated = current.includes(opt.id)
+                                                            ? current.filter((id: string) => id !== opt.id)
+                                                            : [...current, opt.id];
+                                                        handleAnswer(currentStep.id, updated);
+                                                    } else {
+                                                        // Single select behavior
+                                                        handleAnswer(currentStep.id, opt.id);
+                                                    }
+                                                }}
+                                                className={`relative flex flex-col items-start text-left p-6 border-2 rounded-xl transition-all ${isSelected ? 'border-primary bg-primary/5 shadow-md' : 'border-input hover:border-primary/50 hover:shadow-sm'}`}
+                                            >
+                                                <div className="flex w-full items-start gap-4">
+                                                    <div className={`p-3 rounded-full flex-shrink-0 ${isSelected ? 'bg-primary/10' : 'bg-muted'}`}>
+                                                        <span className={isSelected ? 'text-primary' : 'text-muted-foreground'}>
+                                                            {opt.icon ? renderIcon(opt.icon) : (isMulti ? <AlertTriangle className="w-6 h-6" /> : <CheckCircle2 className="w-6 h-6" />)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <span className={`block font-bold text-lg mb-1 ${isSelected ? 'text-primary' : ''}`}>{opt.label}</span>
+                                                        {/* Render Description if available */}
+                                                        {opt.description && (
+                                                            <span className="text-sm text-muted-foreground leading-snug block">{opt.description}</span>
+                                                        )}
+                                                    </div>
+                                                    {isSelected && <div className="text-primary"><CheckCircle2 className="w-6 h-6" /></div>}
                                                 </div>
-                                                <div className="flex-1">
-                                                    <span className={`block font-bold text-lg mb-1 ${isSelected ? 'text-primary' : ''}`}>{opt.label}</span>
-                                                    {/* Render Description if available */}
-                                                    {opt.description && (
-                                                        <span className="text-sm text-muted-foreground leading-snug block">{opt.description}</span>
-                                                    )}
-                                                </div>
-                                                {isSelected && <div className="text-primary"><CheckCircle2 className="w-6 h-6" /></div>}
-                                            </div>
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                {answers[currentStep.id] && Array.isArray(answers[currentStep.id]) && (answers[currentStep.id] as string[]).includes('other_custom') && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="mt-6"
+                                    >
+                                        <label className="block text-sm font-semibold mb-2">Please describe the specific defect:</label>
+                                        <textarea
+                                            className="w-full border-2 border-input rounded-xl p-4 bg-background focus:outline-none focus:border-primary transition-colors text-sm placeholder:text-muted-foreground"
+                                            placeholder="E.g., Screen flickers randomly, Trackpad doesn't click properly..."
+                                            value={(answers.custom_defect_description as string) || ''}
+                                            onChange={(e) => handleAnswer('custom_defect_description', e.target.value)}
+                                            rows={3}
+                                        />
+                                    </motion.div>
+                                )}
+                            </>
                         )}
 
                         {currentStep.type === 'combined-step' && (
@@ -345,7 +363,16 @@ export default function ChecklistWizard({ deviceInfo, category, onComplete, onBa
                                     {(answers.functional_issues as string[]).map((issueId: string) => {
                                         const label = (steps.find((s: any) => s.id === 'functional_issues')?.options?.find((o: any) => o.id === issueId)?.label || issueId) as string;
                                         return (
-                                            <li key={issueId} className="text-red-500 flex gap-2"><Icons.AlertCircle className="w-4 h-4" /> {label}</li>
+                                            <li key={issueId} className="text-red-500 flex flex-col gap-1">
+                                                <div className="flex gap-2">
+                                                    <Icons.AlertCircle className="w-4 h-4 shrink-0" /> {label}
+                                                </div>
+                                                {issueId === 'other_custom' && answers.custom_defect_description && (
+                                                    <span className="text-xs text-muted-foreground ml-6 bg-muted p-2 rounded block">
+                                                        "{answers.custom_defect_description as string}"
+                                                    </span>
+                                                )}
+                                            </li>
                                         );
                                     })}
                                 </ul>

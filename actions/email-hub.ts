@@ -97,10 +97,10 @@ export async function fetchRoleBasedEmails(selectedAccount?: string, skipSync: b
             const riders = await prisma.rider.findMany({ where: { partnerId: { in: partnerIds } }, select: { phone: true } });
             
             reachableEmails.push(...partners.map(p => p.email));
-            reachableEmails.push(...riders.map(r => `${r.phone}@fonzkart.in`));
+            reachableEmails.push(...riders.map(r => `${r.phone}@iproductrepair.com`));
         } else if (role === 'PARTNER') {
             const riders = await prisma.rider.findMany({ where: { partnerId: currentUser.id }, select: { phone: true } });
-            reachableEmails.push(...riders.map(r => `${r.phone}@fonzkart.in`));
+            reachableEmails.push(...riders.map(r => `${r.phone}@iproductrepair.com`));
         } else if (isAdmin) {
             const allAccounts = await prisma.emailAccount.findMany({ select: { email: true } });
             reachableEmails = allAccounts.map(a => a.email);

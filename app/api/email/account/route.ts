@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!email.includes('@')) {
-      email = `${email}@fonzkart.in`;
+      email = `${email}@iproductrepair.com`;
     }
 
     // 1. Create locally in our db
