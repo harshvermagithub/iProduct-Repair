@@ -26,3 +26,11 @@ export async function updatePartnerPincodes(partnerId: string, pincodes: string[
     });
     revalidatePath('/admin/cities');
 }
+
+export async function removePartnerFromCity(partnerId: string) {
+    await prisma.user.update({
+        where: { id: partnerId },
+        data: { cityId: null, pincodes: [] }
+    });
+    revalidatePath('/admin/cities');
+}
