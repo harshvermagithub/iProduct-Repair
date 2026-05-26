@@ -38,7 +38,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-primary uppercase tracking-wider mb-1">
-                            # FZK-{order.orderNumber}
+                            # IPR-{order.orderNumber}
                         </span>
                         <h3 className="font-bold text-lg">{order.device}</h3>
 
@@ -75,7 +75,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                         <p className="text-sm text-muted-foreground">Offered Price</p>
                         <p className="text-xl font-bold text-primary">₹{order.price?.toLocaleString() || 0}</p>
                     </div>
-                    <div className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold ${order.status === 'Pending Pickup' ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300' : 'bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-300'}`}>
+                    <div className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold border ${order.status === 'Pending Pickup' || order.status === 'RM Assigned' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-blue-500/10 border-blue-500/20 text-blue-400'}`}>
                         {order.status}
                     </div>
                     <div className="text-primary hidden sm:flex items-center gap-1 font-semibold text-sm hover:underline">

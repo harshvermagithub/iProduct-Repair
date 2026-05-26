@@ -1,9 +1,10 @@
 
+import { redirect } from 'next/navigation';
 import SellWizard from "@/components/sell/SellWizard";
 
 export const metadata = {
-    title: "Sell Your Phone - Fonzkart",
-    description: "Select your device and get the best price.",
+    title: "Book Onsite Repair - iProduct Repair",
+    description: "Select your Apple device to get doorstep diagnostics and book an instant repair with certified engineers in Bangalore.",
 };
 
 import { fetchBrands } from "@/actions/catalog";
@@ -11,22 +12,23 @@ import { getSession } from "@/lib/session";
 
 export default async function SellPage(props: { searchParams: Promise<{ category?: string; brandId?: string }> }) {
     const searchParams = await props.searchParams;
-    const category = searchParams.category;
+    let category = searchParams.category;
     const brandId = searchParams.brandId;
+
+    // Redirect bare /sell to the repair flow — sell-device feature removed
+    if (!category) {
+        redirect('/sell?category=repair');
+    }
+
     let fetchCategory = category;
-    if (category === 'unbreakable-screenguard' || category === 'repair') {
-        fetchCategory = 'smartphone';
+    if (category === 'repair') {
+        fetchCategory = 'laptop';
     }
     
     const allBrands = await fetchBrands(fetchCategory);
     let brands = allBrands;
-    
-    if (category === 'unbreakable-screenguard') {
-        const requiredBrands = ['Apple', 'Samsung', 'OnePlus', 'Google'];
-        brands = allBrands.filter(b => requiredBrands.includes(b.name));
-    }
 
-    // Fetch user session for auth-dependent flows (e.g., skip phone number step)
+    // Fetch user session for auth-dependent flows
     const session = await getSession();
 
     return (

@@ -30,8 +30,8 @@ export async function sendEmail(prevState: { error?: string, success?: string } 
     const bodyText = formData.get('bodyText') as string;
 
     // Uses standard SMTP variables
-    const fromAddress = process.env.SMTP_FROM || 'support@fonzkart.in';
-    const fromName = process.env.SMTP_FROM_NAME || 'Fonzkart Support';
+    const fromAddress = process.env.SMTP_FROM || 'support@iproductrepair.com';
+    const fromName = process.env.SMTP_FROM_NAME || 'iProduct Repair Support';
     const from = `"${fromName}" <${fromAddress}>`;
 
     if (!to || !subject || !bodyText) {

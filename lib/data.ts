@@ -1,6 +1,6 @@
 
 export const brands = [
-    { id: 'apple', name: 'Apple', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg', categories: ['smartphone', 'tablet', 'watch'] },
+    { id: 'apple', name: 'Apple', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg', categories: ['smartphone', 'tablet', 'watch', 'laptop'] },
     { id: 'xiaomi', name: 'Xiaomi', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Xiaomi_logo_%282021-%29.svg', categories: ['smartphone', 'tablet', 'tv', 'watch'] },
     { id: 'samsung', name: 'Samsung', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg', categories: ['smartphone', 'tablet', 'watch', 'tv'] },
     { id: 'vivo', name: 'Vivo', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Vivo_logo_2019.svg', categories: ['smartphone'] },
@@ -31,6 +31,12 @@ export const models = {
         { id: 'mi-tv-4a', brandId: 'xiaomi', name: 'Mi TV 4A 32"', img: 'https://i01.appmifile.com/v1/MIBC/s/width/1000/height/1000/priority/1/2dd6fc82390a3de077b966cf13a96739.jpg', category: 'tv' },
     ],
     'apple': [
+        { id: 'macbook-air-m1', brandId: 'apple', name: 'MacBook Air M1', img: '/images/apple_technical_repair.png', category: 'laptop' },
+        { id: 'macbook-air-m2', brandId: 'apple', name: 'MacBook Air M2', img: '/images/apple_technical_repair.png', category: 'laptop' },
+        { id: 'macbook-pro-m1', brandId: 'apple', name: 'MacBook Pro M1 (13-inch)', img: '/images/apple_technical_repair.png', category: 'laptop' },
+        { id: 'macbook-pro-m2', brandId: 'apple', name: 'MacBook Pro M2 (13-inch)', img: '/images/apple_technical_repair.png', category: 'laptop' },
+        { id: 'macbook-pro-14-m1', brandId: 'apple', name: 'MacBook Pro 14" (M1)', img: '/images/apple_technical_repair.png', category: 'laptop' },
+        { id: 'macbook-pro-16-m1', brandId: 'apple', name: 'MacBook Pro 16" (M1)', img: '/images/apple_technical_repair.png', category: 'laptop' },
         { id: 'iphone-13', brandId: 'apple', name: 'iPhone 13', img: 'https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-13.jpg', category: 'smartphone' },
         { id: 'iphone-14', brandId: 'apple', name: 'iPhone 14', img: 'https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-14.jpg', category: 'smartphone' },
         { id: 'ipad-pro', brandId: 'apple', name: 'iPad Pro 11"', img: 'https://fdn2.gsmarena.com/vv/bigpic/apple-ipad-pro-11-2022.jpg', category: 'tablet' },
@@ -115,6 +121,13 @@ export const variantSets = {
         { id: 'mac-mini', name: 'Mac Mini (Base)', basePrice: 20000 },
         { id: 'imac', name: 'iMac 24"', basePrice: 40000 },
     ],
+    'laptop': [
+        { id: '8gb-256gb', name: '8 GB / 256 GB', basePrice: 10000 },
+        { id: '8gb-512gb', name: '8 GB / 512 GB', basePrice: 12000 },
+        { id: '16gb-512gb', name: '16 GB / 512 GB', basePrice: 15000 },
+        { id: '16gb-1tb', name: '16 GB / 1 TB', basePrice: 18000 },
+        { id: '32gb-1tb', name: '32 GB / 1 TB', basePrice: 22000 },
+    ],
     'earbuds': [
         { id: 'base', name: 'Standard Version', basePrice: 2000 },
         { id: 'pro', name: 'Pro / Noise Cancelling', basePrice: 5000 },
@@ -178,6 +191,7 @@ export const questionnaireSteps = {
                 { id: 'battery', label: 'Battery', icon: 'Battery' },
                 { id: 'front_camera_blur', label: 'Front Camera Image Blur', icon: 'Image' },
                 { id: 'back_camera_blur', label: 'Back Camera Image Blur', icon: 'Image' },
+                { id: 'other_custom', label: 'Other / Custom Defect', icon: 'HelpCircle' },
             ]
         },
         {
@@ -270,6 +284,7 @@ export const questionnaireSteps = {
                 { id: 'microphone', label: 'Microphone', icon: 'Mic' },
                 { id: 'charging_port', label: 'Charging Port', icon: 'Plug' },
                 { id: 'battery', label: 'Battery', icon: 'Battery' },
+                { id: 'other_custom', label: 'Other / Custom Defect', icon: 'HelpCircle' },
             ]
         },
         {
@@ -359,6 +374,7 @@ export const questionnaireSteps = {
                 { id: 'buttons', label: 'Side Buttons Faulty', icon: 'Power' },
                 { id: 'heart_sensor', label: 'Heart Sensor Faulty', icon: 'Activity' },
                 { id: 'bluetooth', label: 'Bluetooth Faulty', icon: 'Bluetooth' },
+                { id: 'other_custom', label: 'Other / Custom Defect', icon: 'HelpCircle' },
             ]
         },
         {
@@ -507,7 +523,7 @@ export const questionnaireSteps = {
     'laptop': [
         {
             id: 'core_functionality',
-            title: 'Laptop Basics',
+            title: 'MacBook Basics',
             subtitle: 'Quick health check.',
             questions: [
                 { id: 'power', text: 'Does it power on & boot?', subtext: '', type: 'boolean' },
@@ -517,21 +533,33 @@ export const questionnaireSteps = {
             ]
         },
         {
+            id: 'functional_issues',
+            title: 'Repair Required',
+            subtitle: 'Select the repair service you need',
+            type: 'multi-select',
+            options: [
+                { id: 'screen_replacement', label: 'Screen Replacement', icon: 'Monitor' },
+                { id: 'battery_replacement', label: 'Battery Replacement', icon: 'Battery' },
+                { id: 'keyboard_replacement', label: 'Keyboard/Trackpad Replacement', icon: 'Keyboard' },
+                { id: 'logic_board', label: 'Logic Board Repair', icon: 'Cpu' },
+                { id: 'speaker_replacement', label: 'Speaker Replacement', icon: 'Speaker' },
+                { id: 'other_custom', label: 'Other / Custom Defect', icon: 'HelpCircle' },
+            ]
+        },
+        {
             id: 'physical_condition',
             title: 'Physical Condition',
-            subtitle: 'Any damage?',
+            subtitle: 'Any physical damage?',
             type: 'multi-select',
             options: [
                 { id: 'screen_damage', label: 'Broken Screen/Hinges', icon: 'Laptop' },
                 { id: 'body_damage', label: 'Heavy Dents/Cracks on Body', icon: 'ShieldAlert' },
-                { id: 'battery_dead', label: 'Battery Dead/Not Charging', icon: 'Battery' },
-                { id: 'keys_missing', label: 'Keys Missing/Broken', icon: 'Keyboard' },
             ]
         },
         {
             id: 'specs',
-            title: 'System Specs',
-            subtitle: 'Confirm configuration',
+            title: 'System Details',
+            subtitle: 'Confirm details',
             type: 'multi-select',
             options: [
                 { id: 'charger_missing', label: 'Original Charger Missing', icon: 'Plug' },
@@ -654,6 +682,19 @@ export const questionnaireSteps = {
             ]
         },
         {
+            id: 'functional_issues',
+            title: 'Repair Required',
+            subtitle: 'Select any issues your desktop has (Check if applicable)',
+            type: 'multi-select',
+            options: [
+                { id: 'power_issue', label: 'Power Supply / SMPS Failure', icon: 'Power' },
+                { id: 'ram_hdd_upgrade', label: 'RAM / SSD Upgrade', icon: 'Cpu' },
+                { id: 'os_reinstall', label: 'OS Installation / Software Crash', icon: 'Settings' },
+                { id: 'motherboard_repair', label: 'Logic Board / Motherboard Repair', icon: 'Cpu' },
+                { id: 'other_custom', label: 'Other / Custom Defect', icon: 'HelpCircle' },
+            ]
+        },
+        {
             id: 'device_details',
             title: 'Accessories',
             subtitle: 'Cables & Peripherals',
@@ -693,6 +734,19 @@ export const questionnaireSteps = {
                 { id: 'good', label: 'Good', description: 'Minor scratches', icon: 'Smile' },
                 { id: 'average', label: 'Average', description: 'Visible dents/yellowing', icon: 'MinusCircle' },
                 { id: 'damaged', label: 'Damaged', description: 'Buds or Case cracked', icon: 'AlertTriangle' },
+            ]
+        },
+        {
+            id: 'functional_issues',
+            title: 'Repair Required',
+            subtitle: 'Select any issues your earbuds have (Check if applicable)',
+            type: 'multi-select',
+            options: [
+                { id: 'battery_replacement', label: 'Battery Drainage / Charging Issue', icon: 'Battery' },
+                { id: 'one_side_not_working', label: 'One Side Audio Silent', icon: 'Headphones' },
+                { id: 'sound_crackling', label: 'Crackling / Low Volume Sound', icon: 'VolumeX' },
+                { id: 'mic_issue', label: 'Microphone / Call Audio Failure', icon: 'Mic' },
+                { id: 'other_custom', label: 'Other / Custom Defect', icon: 'HelpCircle' },
             ]
         },
         {

@@ -10,43 +10,23 @@ import Link from 'next/link';
 import { Brand } from '@/lib/store';
 
 const CATEGORY_OPTIONS = [
-    { id: 'smartphone', label: 'Phone', icon: Smartphone, color: 'text-blue-500' },
-    { id: 'laptop', label: 'Laptop', icon: Laptop, color: 'text-purple-500' },
-    { id: 'tablet', label: 'Tablet', icon: Tablet, color: 'text-pink-500' },
-    { id: 'smartwatch', label: 'Watch', icon: Watch, color: 'text-orange-500' },
-    { id: 'console', label: 'Console', icon: Gamepad2, color: 'text-indigo-500' },
-    { id: 'smarttv', label: 'TV', icon: Tv, color: 'text-red-500' },
+    { id: 'smartphone', label: 'iPhone', icon: Smartphone, color: 'text-blue-500' },
+    { id: 'laptop', label: 'MacBook', icon: Laptop, color: 'text-indigo-400' },
+    { id: 'tablet', label: 'iPad', icon: Tablet, color: 'text-purple-500' },
+    { id: 'smartwatch', label: 'Apple Watch', icon: Watch, color: 'text-pink-500' },
 ];
 
 const getBrandCategories = (brandName: string) => {
     const b = brandName.toLowerCase();
     const cats = ['smartphone'];
 
-    // Tablets
-    if (['apple', 'samsung', 'xiaomi', 'oneplus', 'lenovo', 'motorola', 'realme', 'google', 'honor', 'huawei', 'oppo', 'vivo'].includes(b)) {
+    if (['apple', 'samsung', 'google'].includes(b)) {
         cats.push('tablet');
     }
-
-    // Laptops
-    if (['apple', 'samsung', 'xiaomi', 'lenovo', 'asus', 'hp', 'dell', 'acer', 'msi', 'microsoft', 'honor'].includes(b)) {
+    if (['apple'].includes(b)) {
         cats.push('laptop');
-    }
-
-    // Watches
-    if (['apple', 'samsung', 'xiaomi', 'oneplus', 'google', 'huawei', 'honor', 'motorola', 'noise', 'boat', 'fire-boltt'].includes(b)) {
         cats.push('smartwatch');
     }
-
-    // Consoles
-    if (['sony', 'microsoft', 'nintendo'].includes(b)) {
-        cats.push('console');
-    }
-
-    // Smart TVs
-    if (['samsung', 'sony', 'lg', 'xiaomi', 'oneplus', 'motorola', 'nokia', 'acer', 'tcl'].includes(b)) {
-        cats.push('smarttv');
-    }
-
     return cats;
 };
 
@@ -67,8 +47,8 @@ export function BrandRail({ initialBrands }: { initialBrands?: Brand[] }) {
             <div className="w-full space-y-3">
                 <div className="flex items-center justify-between px-1">
                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Top Brands</span>
-                    <Link href="/sell" className="text-xs font-medium text-green-500 flex items-center gap-1">
-                        View All <ArrowRight className="w-3 h-3" />
+                    <Link href="/sell?category=repair" className="text-xs font-medium text-blue-500 flex items-center gap-1">
+                        Book Repair <ArrowRight className="w-3 h-3" />
                     </Link>
                 </div>
 
@@ -79,7 +59,7 @@ export function BrandRail({ initialBrands }: { initialBrands?: Brand[] }) {
                             onClick={() => setSelectedBrand(brand)}
                             className="flex flex-col items-center gap-2 w-full group focus:outline-none"
                         >
-                            <div className="w-full aspect-square max-w-[90px] rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center shadow-sm group-hover:border-green-500 transition-colors p-3">
+                            <div className="w-full aspect-square max-w-[90px] rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center shadow-sm group-hover:border-blue-500 transition-colors p-3">
                                 <div className="relative w-full h-full">
                                     {brand.logo ? (
                                         <Image src={brand.logo} alt={brand.name} fill className="object-contain" unoptimized />
@@ -88,7 +68,7 @@ export function BrandRail({ initialBrands }: { initialBrands?: Brand[] }) {
                                     )}
                                 </div>
                             </div>
-                            <span className="text-sm font-bold text-center truncate w-full group-hover:text-green-500 transition-colors">
+                            <span className="text-sm font-bold text-center truncate w-full group-hover:text-blue-500 transition-colors">
                                 {brand.name}
                             </span>
                         </button>
@@ -113,10 +93,10 @@ export function BrandRail({ initialBrands }: { initialBrands?: Brand[] }) {
                                 animate={{ scale: 1, opacity: 1, y: 0 }}
                                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
                                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                className="relative w-full max-w-sm bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden"
+                                className="relative w-full max-w-sm bg-slate-950 border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                                <div className="p-4 border-b border-white/5 flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <div className="w-16 h-16 relative p-1 bg-white border border-slate-100 rounded-xl flex items-center justify-center">
                                             {selectedBrand.logo ? (
@@ -126,30 +106,30 @@ export function BrandRail({ initialBrands }: { initialBrands?: Brand[] }) {
                                             )}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-lg text-black">Select Category</h3>
+                                            <h3 className="font-bold text-lg text-white">Select Category</h3>
                                             <p className="text-sm text-slate-500 font-medium">For {selectedBrand.name}</p>
                                         </div>
                                     </div>
                                     <button
                                         onClick={() => setSelectedBrand(null)}
-                                        className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                                        className="p-2 hover:bg-white/15 rounded-full transition-colors"
                                     >
-                                        <X className="w-5 h-5 text-slate-500" />
+                                        <X className="w-5 h-5 text-slate-400" />
                                     </button>
                                 </div>
 
-                                <div className="p-6 grid grid-cols-3 gap-4">
+                                <div className="p-6 grid grid-cols-2 gap-4">
                                     {CATEGORY_OPTIONS.filter(opt => getBrandCategories(selectedBrand.name).includes(opt.id)).map((option) => (
                                         <Link
                                             key={option.id}
-                                            href={`/sell?category=${option.id}&brandId=${selectedBrand.id}`}
+                                            href={`/sell?category=repair&brandId=${selectedBrand.id}`}
                                             className="flex flex-col items-center gap-2 group"
                                             onClick={() => setSelectedBrand(null)}
                                         >
-                                            <div className={`w-24 h-24 rounded-3xl flex items-center justify-center transition-all group-hover:scale-105 shadow-sm bg-white border-2 border-slate-100 ${option.color}`}>
-                                                <option.icon className="w-14 h-14" />
+                                            <div className={`w-24 h-24 rounded-3xl flex items-center justify-center transition-all group-hover:scale-105 shadow-sm bg-white/5 border border-white/10 ${option.color}`}>
+                                                <option.icon className="w-10 h-10" />
                                             </div>
-                                            <span className="text-sm font-bold text-black group-hover:text-primary transition-colors">
+                                            <span className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">
                                                 {option.label}
                                             </span>
                                         </Link>

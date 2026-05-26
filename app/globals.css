@@ -67,35 +67,34 @@
 :root {
   /* Layout Spacing Variable */
   --layout-x-spacing: 1.25rem;
-  /* 20px padding for mobile safe area */
 
-  --background: 140 30% 98%;
-  --foreground: 140 60% 10%;
+  --background: 0 0% 100%;
+  --foreground: 240 10% 4%;
 
   --card: 0 0% 100%;
-  --card-foreground: 140 60% 10%;
+  --card-foreground: 240 10% 4%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 140 60% 10%;
+  --popover-foreground: 240 10% 4%;
 
-  --primary: 142 76% 36%;
-  --primary-foreground: 140 40% 98%;
+  --primary: 210 100% 45%; /* Apple Blue #0071e3 */
+  --primary-foreground: 0 0% 98%;
 
-  --secondary: 140 30% 94%;
-  --secondary-foreground: 140 60% 15%;
+  --secondary: 240 5% 96%; /* Apple Gray #f5f5f7 */
+  --secondary-foreground: 240 10% 4%;
 
-  --muted: 140 30% 94%;
-  --muted-foreground: 140 20% 45%;
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 4% 46%;
 
-  --accent: 140 30% 94%;
-  --accent-foreground: 140 60% 15%;
+  --accent: 240 5% 96%;
+  --accent-foreground: 240 10% 4%;
 
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 140 20% 90%;
-  --input: 140 20% 90%;
-  --ring: 142 76% 36%;
+  --border: 240 6% 90%;
+  --input: 240 6% 90%;
+  --ring: 210 100% 45%;
 
   --radius: 0.75rem;
 }
@@ -103,38 +102,38 @@
 .dark {
   /* Futuristic pure black space */
   --background: 0 0% 0%;
-  --foreground: 210 40% 98%;
+  --foreground: 0 0% 98%;
 
-  /* Subtle elevation for cards, almost black with slight blue hue */
-  --card: 228 35% 7%;
-  --card-foreground: 210 40% 98%;
+  /* Translucent Apple Elevation */
+  --card: 240 4% 9%; /* Apple Dark Gray #1c1c1e */
+  --card-foreground: 0 0% 98%;
 
   --popover: 0 0% 0%;
-  --popover-foreground: 210 40% 98%;
+  --popover-foreground: 0 0% 98%;
 
-  /* Punchy, bright futuristic neon emerald green */
-  --primary: 142 85% 48%;
+  /* Punchy Apple Neon Blue */
+  --primary: 210 100% 58%; /* #2997ff */
   --primary-foreground: 0 0% 0%;
 
-  /* Sleek modern slate for secondary elements */
-  --secondary: 225 25% 12%;
-  --secondary-foreground: 210 40% 98%;
+  /* Sleek modern dark secondary */
+  --secondary: 240 4% 12%;
+  --secondary-foreground: 0 0% 98%;
 
-  --muted: 225 25% 12%;
-  --muted-foreground: 215 20% 65%;
+  --muted: 240 4% 12%;
+  --muted-foreground: 240 5% 65%;
 
-  --accent: 225 25% 14%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 240 4% 14%;
+  --accent-foreground: 0 0% 98%;
 
   --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 0 0% 98%;
 
   /* Crisp borders */
-  --border: 220 20% 16%;
-  --input: 220 20% 16%;
+  --border: 240 4% 15%;
+  --input: 240 4% 15%;
 
   /* Glowing ring focus */
-  --ring: 142 85% 48%;
+  --ring: 210 100% 58%;
 }
 
 @layer base {

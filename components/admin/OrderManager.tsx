@@ -141,7 +141,7 @@ export default function OrderManager({
             const isExpress = answers.isExpress ? "Express" : "Standard";
             const riderAssign = riders.find(r => r.id === o.riderId)?.name || "Unassigned";
             return [
-                `FZK-${o.orderNumber || ''}`,
+                `IPR-${o.orderNumber || ''}`,
                 new Date(o.date).toLocaleDateString(),
                 `"${o.device.replace(/"/g, '""')}"`,
                 o.price,
@@ -157,7 +157,7 @@ export default function OrderManager({
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
-        link.setAttribute("download", `Fonzkart_Orders_${new Date().toISOString().split('T')[0]}.csv`);
+        link.setAttribute("download", `iProduct_Repair_Orders_${new Date().toISOString().split('T')[0]}.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -287,7 +287,7 @@ export default function OrderManager({
                                         </span>
                                     </div>
                                     <h3 className="text-xl font-bold flex flex-col items-start gap-1">
-                                        <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded uppercase tracking-widest block"># FZK-{order.orderNumber}</span>
+                                        <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded uppercase tracking-widest block"># IPR-{order.orderNumber}</span>
                                         <span className="flex items-center gap-2">
                                             <Smartphone className="w-5 h-5 text-gray-500" />
                                             {order.device}
@@ -569,7 +569,7 @@ export default function OrderManager({
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
                     <div className="bg-background rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
                         <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-background/95 backdrop-blur z-20">
-                            <h3 className="font-bold text-lg">Evaluation Details (FZK-{viewingOrder.orderNumber})</h3>
+                            <h3 className="font-bold text-lg">Evaluation Details (IPR-{viewingOrder.orderNumber})</h3>
                             <button onClick={() => setViewingOrder(null)} className="p-2 hover:bg-muted rounded-full">
                                 <X className="w-5 h-5" />
                             </button>

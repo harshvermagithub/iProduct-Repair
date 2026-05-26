@@ -41,8 +41,8 @@ export default function StepLogin({ onSuccess }: StepLoginProps) {
             </h2>
             <p className="text-muted-foreground mb-6">
                 {mode === 'register'
-                    ? 'Please provide your details to view the final price and save your quote.'
-                    : 'Sign in to view your offer.'}
+                    ? 'Please provide your details to view the exact repair cost and book your slot.'
+                    : 'Sign in to view your repair cost.'}
             </p>
 
             <form action={handleSubmit} className="space-y-4">
@@ -107,7 +107,7 @@ export default function StepLogin({ onSuccess }: StepLoginProps) {
                 >
                     {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : (
                         <>
-                            {mode === 'register' ? 'View Price' : 'Sign In'} <ArrowRight className="w-5 h-5" />
+                            {mode === 'register' ? 'View Repair Cost' : 'Sign In'} <ArrowRight className="w-5 h-5" />
                         </>
                     )}
                 </button>

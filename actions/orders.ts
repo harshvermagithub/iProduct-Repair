@@ -17,7 +17,7 @@ export async function placeOrder(
 ) {
     const session = await getSession();
     if (!session || !session.user) {
-        throw new Error('Unauthorized');
+        return { success: false, error: 'UNAUTHORIZED' };
     }
 
     const order = {
@@ -40,16 +40,16 @@ export async function placeOrder(
         const orderHtml = `
           <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #10b981; border-radius: 10px;">
             <h2 style="color: #10b981;">Order Confirmed!</h2>
-            <p>Dear ${session.user.name}, your request to sell your <b>${device} (${variant})</b> has been successfully recorded.</p>
+            <p>Dear ${session.user.name}, your order/request for <b>${device} (${variant})</b> has been successfully recorded.</p>
             <div style="background-color: #f4f4f4; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <p><b>Estimated Value:</b> ₹${price}</p>
-                <p><b>Status:</b> Pending Pickup</p>
+                <p><b>Estimated Value/Charge:</b> ₹${price}</p>
+                <p><b>Status:</b> Pending Service/Pickup</p>
             </div>
-            <p>Our team will review your order and allocate a dedicated executive to your address for pickup shortly.</p>
-            <p style="color: #888; font-size: 12px; margin-top: 20px;">Fonzkart Logistics</p>
+            <p>Our team will review your order and allocate a dedicated executive/technician to your address shortly.</p>
+            <p style="color: #888; font-size: 12px; margin-top: 20px;">iProduct Repair Logistics</p>
           </div>
         `;
-        sendSystemEmail(user.email, 'Fonzkart: Order Confirmed', orderHtml);
+        sendSystemEmail(user.email, 'iProduct Repair: Order Confirmed', orderHtml);
     }
 
     return { success: true };
@@ -75,7 +75,7 @@ export async function checkPincodeAvailability(pincode: string) {
 
 export async function requestServiceArea(pincode: string, phone: string, address: string) {
     // Send an email to the admin about the new service area request
-    const adminEmail = process.env.SUPERADMIN_EMAIL || 'admin@fonzkart.in';
+    const adminEmail = process.env.SUPERADMIN_EMAIL || 'admin@iproductrepair.com';
     const html = `
         <h2>New Service Area Request</h2>
         <p>A customer has requested service in an area that is currently not serviceable.</p>

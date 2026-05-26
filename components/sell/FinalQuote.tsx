@@ -29,6 +29,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
         isRepair ? 'address' : (user ? 'quote' : 'contact')
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [serviceType, setServiceType] = useState<'doorstep' | 'store'>('doorstep');
 
     // Form Data
     const [phone, setPhone] = useState('');
@@ -38,7 +39,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
     const [selectedDate, setSelectedDate] = useState<number>(0); // 0 to 3 index
     const [selectedSlot, setSelectedSlot] = useState<string>('');
     const [isExpress, setIsExpress] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'bank_transfer' | 'amazon_voucher' | 'flipkart_voucher'>('cash');
+    const [paymentMethod, setPaymentMethod] = useState<string>(isRepair ? 'pay_after_service' : 'cash');
     const [upiId, setUpiId] = useState('');
     const [bankAccount, setBankAccount] = useState('');
     const [bankIfsc, setBankIfsc] = useState('');
@@ -186,6 +187,10 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
     };
 
     const handleCheckServiceability = async () => {
+        if (serviceType === 'store') {
+            setBookingStep('schedule');
+            return;
+        }
         setIsCheckingPincode(true);
         try {
             const isAvailable = await checkPincodeAvailability(pincode);
@@ -224,18 +229,27 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                 scheduledDate: dates[selectedDate].fullDate,
                 scheduledSlot: selectedSlot,
                 isExpress,
-                detectedAddress,
+                detectedAddress: serviceType === 'store' ? 'iProduct Care Center, Marathahalli' : detectedAddress,
                 paymentMethod,
+                serviceType,
                 upiId: paymentMethod === 'upi' ? upiId : undefined,
                 bankAccount: paymentMethod === 'bank_transfer' ? bankAccount : undefined,
                 bankIfsc: paymentMethod === 'bank_transfer' ? bankIfsc : undefined,
                 bankAccountName: paymentMethod === 'bank_transfer' ? bankAccountName : undefined
             };
 
-            await placeOrder(deviceInfo.name, deviceInfo.variant, finalPrice, address, pincode, location, finalAnswers);
+            const finalAddress = serviceType === 'store' ? 'iProduct Care Center, Marathahalli' : address;
+            const finalPincode = serviceType === 'store' ? '560037' : pincode;
+
+            const res = await placeOrder(deviceInfo.name, deviceInfo.variant, finalPrice, finalAddress, finalPincode, location, finalAnswers);
+            if (res && 'error' in res && res.error === 'UNAUTHORIZED') {
+                router.push('/login');
+                return;
+            }
             router.push('/orders');
-        } catch {
-            // Backup redirect flow if placeOrder fails (e.g. auth)
+        } catch (error) {
+            console.error("Failed to place order:", error);
+            // Backup redirect flow if placeOrder throws (e.g. network/fetch error)
             router.push('/login');
         } finally {
             setIsSubmitting(false);
@@ -309,7 +323,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
             >
                 <div className="text-center space-y-2">
                     <h2 className="text-2xl font-bold">Almost there!</h2>
-                    <p className="text-muted-foreground">Enter your number to unlock your device value.</p>
+                    <p className="text-muted-foreground">Enter your number to unlock your repair quote.</p>
                 </div>
 
                 <div className="bg-card border rounded-2xl p-6 shadow-sm space-y-6">
@@ -336,7 +350,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                         disabled={phone.length < 10}
                         className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                        See Best Price <ArrowRight className="w-5 h-5" />
+                        See Repair Cost <ArrowRight className="w-5 h-5" />
                     </button>
 
                     <p className="text-xs text-center text-muted-foreground">
@@ -357,7 +371,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                 className="max-w-xl mx-auto py-10 space-y-8"
             >
                 <div className="text-center space-y-2">
-                    <h2 className="text-3xl font-bold">Best Price for your {deviceInfo.name}</h2>
+                    <h2 className="text-3xl font-bold">Repair Cost for your {deviceInfo.name}</h2>
                     <p className="text-muted-foreground">Based on your condition report</p>
                 </div>
 
@@ -365,7 +379,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                     <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl -z-10" />
 
                     <div className="inline-block px-4 py-1.5 rounded-full bg-slate-900/10 dark:bg-white/10 text-primary-dark font-bold text-sm tracking-widest uppercase mb-2">
-                        Your Final Offer
+                        Estimated Repair Cost
                     </div>
                     <div className="text-7xl font-black text-foreground tracking-tight flex items-center justify-center gap-2">
                         {isCalculating ? <Loader2 className="w-16 h-16 animate-spin text-primary" /> : `₹${finalPrice.toLocaleString()}`}
@@ -380,13 +394,13 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                         onClick={() => setBookingStep('address')}
                         className="w-full py-4 bg-primary text-primary-foreground font-bold text-xl rounded-2xl shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                     >
-                        Book Free Pickup <Truck className="w-6 h-6" />
+                        Book Onsite Repair <Truck className="w-6 h-6" />
                     </button>
                     <button
                         onClick={() => onRecalculate ? onRecalculate() : router.back()}
                         className="w-full py-3 text-muted-foreground hover:text-foreground font-medium transition-colors"
                     >
-                        Recalculate Value
+                        Recalculate Cost
                     </button>
                 </div>
             </motion.div>
@@ -394,7 +408,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
     }
 
     // -------------------------------------------------------------------------
-    // RENDER: STEP 3 - ADDRESS
+    // RENDER: STEP 3 - SERVICE TYPE & LOCATION
     // -------------------------------------------------------------------------
     if (bookingStep === 'address') {
         return (
@@ -412,101 +426,175 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                                 setBookingStep('quote');
                             }
                         }} 
-                        className="p-2 hover:bg-slate-100 rounded-full dark:hover:bg-slate-800"
+                        className="p-2 hover:bg-slate-100 rounded-full dark:hover:bg-slate-800 transition-colors"
                     >
                         <ArrowLeft className="w-6 h-6" />
                     </button>
-                    <h2 className="text-2xl font-bold">{isRepair ? 'Service Location' : 'Pickup Location'}</h2>
+                    <h2 className="text-2xl font-bold">Select Service Mode</h2>
                 </div>
 
-                <div className="bg-card border rounded-2xl p-6 space-y-6 shadow-sm">
-                    <div className="space-y-3">
-                        <label className="block text-sm font-medium">{isRepair ? 'Address' : 'Pickup Address'}</label>
-                        <textarea
-                            className="w-full p-4 border rounded-xl bg-background min-h-[120px] focus:ring-2 focus:ring-primary/50 outline-none resize-none"
-                            placeholder="House No, Street Area, Landmark, City, Pincode..."
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            autoFocus
-                        />
-                    </div>
-
-
-
-                    <div className="flex items-center gap-4 py-2">
-                        <div className="flex-1 border-t border-dashed border-gray-300"></div>
-                        <span className="text-muted-foreground font-medium text-xs uppercase">OR</span>
-                        <div className="flex-1 border-t border-dashed border-gray-300"></div>
-                    </div>
-
-                    <div className="space-y-3">
-                        <label className="block text-sm font-medium">Pin Location</label>
+                {/* Service Mode Toggles */}
+                {isRepair && (
+                    <div className="grid grid-cols-2 gap-4 p-1.5 bg-slate-900/5 dark:bg-white/5 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl">
                         <button
-                            onClick={handleGetLocation}
                             type="button"
-                            className={`w-full py-4 border-2 border-dashed rounded-xl flex items-center justify-center gap-2 transition-all duration-300 group ${location
-                                ? 'border-green-500 bg-green-50 text-green-700'
-                                : 'border-primary/30 hover:border-primary hover:bg-primary/5'
-                                }`}
+                            onClick={() => setServiceType('doorstep')}
+                            className={`flex flex-col items-center justify-center p-4 rounded-xl text-center transition-all duration-300 ${
+                                serviceType === 'doorstep'
+                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20 scale-[1.01]'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-slate-900/5 dark:hover:bg-white/5'
+                            }`}
                         >
-                            {isGettingLocation ? (
-                                <><Loader2 className="animate-spin w-5 h-5" /> Detecting location...</>
-                            ) : location ? (
-                                <><CheckCircle className="w-5 h-5 fill-green-200" /> Location Captured</>
-                            ) : (
-                                <><MapPin className="w-5 h-5 group-hover:scale-110 transition-transform" /> Detect My Location</>
-                            )}
+                            <Truck className="w-6 h-6 mb-1.5" />
+                            <span className="font-bold text-sm">Doorstep Repair</span>
+                            <span className="text-[10px] opacity-80 font-medium">Engineer visits in 3 hrs</span>
                         </button>
-                        {locationError && <p className="text-destructive text-sm text-center">{locationError}</p>}
+                        <button
+                            type="button"
+                            onClick={() => setServiceType('store')}
+                            className={`flex flex-col items-center justify-center p-4 rounded-xl text-center transition-all duration-300 ${
+                                serviceType === 'store'
+                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20 scale-[1.01]'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-slate-900/5 dark:hover:bg-white/5'
+                            }`}
+                        >
+                            <MapPin className="w-6 h-6 mb-1.5" />
+                            <span className="font-bold text-sm">Care Center Visit</span>
+                            <span className="text-[10px] opacity-80 font-medium">Self-visit physical store</span>
+                        </button>
+                    </div>
+                )}
 
-                        {/* Map Preview Logic */}
-                        <AnimatePresence>
-                            {location && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    className="overflow-hidden space-y-2 pt-2"
-                                >
-                                    <div className="p-3 bg-muted/50 rounded-lg border text-sm text-muted-foreground flex items-start gap-2">
-                                        <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
-                                        <div>
-                                            <span className="font-semibold block text-foreground">Detected Location:</span>
-                                            {detectedAddress || "Fetching address..."}
+                {serviceType === 'doorstep' ? (
+                    <div className="bg-card border rounded-2xl p-6 space-y-6 shadow-sm">
+                        <div className="space-y-3">
+                            <label className="block text-sm font-medium">Service Address</label>
+                            <textarea
+                                className="w-full p-4 border rounded-xl bg-background min-h-[120px] focus:ring-2 focus:ring-primary/50 outline-none resize-none"
+                                placeholder="House No, Street Area, Landmark, City, Pincode..."
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                autoFocus
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-4 py-2">
+                            <div className="flex-1 border-t border-dashed border-gray-300"></div>
+                            <span className="text-muted-foreground font-medium text-xs uppercase">OR</span>
+                            <div className="flex-1 border-t border-dashed border-gray-300"></div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="block text-sm font-medium">Pin Location</label>
+                            <button
+                                onClick={handleGetLocation}
+                                type="button"
+                                className={`w-full py-4 border-2 border-dashed rounded-xl flex items-center justify-center gap-2 transition-all duration-300 group ${location
+                                    ? 'border-blue-500 bg-blue-500/10 text-blue-400'
+                                    : 'border-primary/30 hover:border-primary hover:bg-primary/5'
+                                    }`}
+                            >
+                                {isGettingLocation ? (
+                                    <><Loader2 className="animate-spin w-5 h-5" /> Detecting location...</>
+                                ) : location ? (
+                                    <><CheckCircle className="w-5 h-5 fill-blue-500/20 text-blue-400" /> Location Captured</>
+                                ) : (
+                                    <><MapPin className="w-5 h-5 group-hover:scale-110 transition-transform" /> Detect My Location</>
+                                )}
+                            </button>
+                            {locationError && <p className="text-destructive text-sm text-center">{locationError}</p>}
+
+                            <AnimatePresence>
+                                {location && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="overflow-hidden space-y-2 pt-2"
+                                    >
+                                        <div className="p-3 bg-muted/50 rounded-lg border text-sm text-muted-foreground flex items-start gap-2">
+                                            <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
+                                            <div>
+                                                <span className="font-semibold block text-foreground">Detected Location:</span>
+                                                {detectedAddress || "Fetching address..."}
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    {/* Interactive Map */}
-                                    <div className="border rounded-xl overflow-hidden shadow-sm">
-                                        <MapPicker
-                                            center={location}
-                                            onLocationChange={handleMapLocationChange}
-                                        />
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
+                                        <div className="border rounded-xl overflow-hidden shadow-sm">
+                                            <MapPicker
+                                                center={location}
+                                                onLocationChange={handleMapLocationChange}
+                                            />
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
 
-                    <div className="space-y-3 pt-4 border-t border-border/50">
-                        <label className="block text-sm font-medium">Pincode (Required)</label>
-                        <input
-                            type="text"
-                            maxLength={6}
-                            className="w-full p-4 border rounded-xl bg-background focus:ring-2 focus:ring-primary/50 outline-none"
-                            placeholder="e.g. 560032"
-                            value={pincode}
-                            onChange={(e) => setPincode(e.target.value.replace(/\D/g, ''))}
-                        />
+                        <div className="space-y-3 pt-4 border-t border-border/50">
+                            <label className="block text-sm font-medium">Pincode (Required)</label>
+                            <input
+                                type="text"
+                                maxLength={6}
+                                className="w-full p-4 border rounded-xl bg-background focus:ring-2 focus:ring-primary/50 outline-none"
+                                placeholder="e.g. 560032"
+                                value={pincode}
+                                onChange={(e) => setPincode(e.target.value.replace(/\D/g, ''))}
+                            />
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="bg-gradient-to-br from-blue-500/5 to-indigo-500/5 border border-blue-500/20 rounded-2xl p-6 space-y-6 shadow-md relative overflow-hidden">
+                        <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl tracking-wider">CARE CENTER</div>
+                        
+                        <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                                <div className="p-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl">
+                                    <MapPin className="w-6 h-6" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h3 className="font-bold text-lg text-foreground">iProduct Care Center (Marathahalli)</h3>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                        2nd Floor, Sai Plaza, opposite KLM Fashion Mall, Marathahalli, Bengaluru, Karnataka 560037
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border/40">
+                                <div className="space-y-1">
+                                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Store Timings</span>
+                                    <span className="text-sm font-semibold text-foreground">10:00 AM - 08:00 PM</span>
+                                    <span className="text-[10px] text-green-600 font-medium block">Open All Days</span>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Helpline</span>
+                                    <span className="text-sm font-semibold text-foreground">+91 98765 43210</span>
+                                    <span className="text-[10px] text-muted-foreground font-medium block">Call for directions</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white/40 dark:bg-slate-900/40 p-4 rounded-xl border border-white/20 text-xs text-muted-foreground space-y-2">
+                            <h4 className="font-bold text-foreground">Why choose Store Visit?</h4>
+                            <ul className="list-disc list-inside space-y-1">
+                                <li>Face-to-face diagnostics with certified Apple tech experts</li>
+                                <li>Express same-day repairs (most screen/battery fixed in 1 hr)</li>
+                                <li>Zero diagnostics or service fees - pay only for parts!</li>
+                            </ul>
+                        </div>
+                    </div>
+                )}
 
                 <button
                     onClick={handleCheckServiceability}
-                    disabled={(!address && !location) || pincode.length !== 6 || isCheckingPincode}
+                    disabled={
+                        serviceType === 'doorstep' 
+                            ? ((!address && !location) || pincode.length !== 6 || isCheckingPincode)
+                            : false
+                    }
                     className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                    {isCheckingPincode ? <Loader2 className="animate-spin w-5 h-5" /> : <>Continue to Schedule <ArrowRight className="w-5 h-5" /></>}
+                    {isCheckingPincode ? <Loader2 className="animate-spin w-5 h-5" /> : <>Continue to Schedule Visit <ArrowRight className="w-5 h-5" /></>}
                 </button>
             </motion.div>
             
@@ -535,7 +623,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                                 </p>
                                 
                                 {requestSent ? (
-                                    <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 p-4 rounded-xl border border-green-200 dark:border-green-800/30 flex flex-col items-center gap-2">
+                                    <div className="bg-blue-500/10 text-blue-400 p-4 rounded-xl border border-blue-500/20 flex flex-col items-center gap-2">
                                         <CheckCircle className="w-6 h-6" />
                                         <p className="font-semibold text-sm">Request received! We'll notify you when we arrive.</p>
                                     </div>
@@ -581,10 +669,14 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                 className="max-w-xl mx-auto py-8 space-y-6"
             >
                 <div className="flex items-center gap-4 mb-4">
-                    <button onClick={() => setBookingStep('address')} className="p-2 hover:bg-slate-100 rounded-full">
+                    <button onClick={() => setBookingStep('address')} className="p-2 hover:bg-slate-100 rounded-full dark:hover:bg-slate-800 transition-colors">
                         <ArrowLeft className="w-6 h-6" />
                     </button>
-                    <h2 className="text-2xl font-bold">{isRepair ? 'Schedule Visit' : 'Schedule Pickup'}</h2>
+                    <h2 className="text-2xl font-bold">
+                        {isRepair 
+                            ? (serviceType === 'store' ? 'Schedule Store Visit' : 'Schedule Doorstep Visit') 
+                            : 'Schedule Pickup'}
+                    </h2>
                 </div>
 
                 <div className="space-y-6">
@@ -642,65 +734,86 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 py-2">
-                        <div className="flex-1 border-t border-dashed border-gray-300"></div>
-                        <span className="text-muted-foreground font-medium text-xs uppercase">OR</span>
-                        <div className="flex-1 border-t border-dashed border-gray-300"></div>
-                    </div>
-
-                    {/* Express Pickup Option */}
-                    <div
-                        className={`relative p-5 rounded-2xl border-2 transition-all overflow-hidden ${!showExpress ? 'border-dashed border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed' :
-                            isExpress ? 'border-amber-400 bg-amber-50 shadow-md transform scale-[1.02] cursor-pointer' :
-                                'border-border bg-card hover:border-amber-200 opacity-90 cursor-pointer'
-                            }`}
-                        onClick={() => {
-                            if (!showExpress) return;
-                            const newState = !isExpress;
-                            setIsExpress(newState);
-                            if (newState) setSelectedSlot('');
-                        }}
-                    >
-                        {isExpress && <div className="absolute top-0 right-0 bg-amber-400 text-amber-950 text-[10px] font-bold px-2 py-1 rounded-bl-xl">SELECTED</div>}
-                        {!showExpress && <div className="absolute top-0 right-0 bg-slate-400 text-white text-[10px] font-bold px-2 py-1 rounded-bl-xl">UNAVAILABLE</div>}
-
-                        <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isExpress ? 'bg-amber-100 text-amber-600' : !showExpress ? 'bg-slate-200 text-slate-400' : 'bg-slate-100 text-slate-400'}`}>
-                                <Zap className="w-6 h-6 fill-current" />
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between">
-                                    <h4 className={`font-bold ${isExpress ? 'text-slate-900' : !showExpress ? 'text-muted-foreground' : 'text-foreground'}`}>{isRepair ? 'Express Service' : 'Express Pickup'}</h4>
-                                    {!showExpress ? (
-                                        <span className="text-xs font-bold text-slate-400">CLOSED</span>
-                                    ) : (
-                                        <div className="flex items-center gap-2">
-                                            <span className={`text-xs ${isExpress ? 'text-slate-500' : 'text-muted-foreground'} line-through`}>₹50</span>
-                                            <span className="text-sm font-bold text-green-600">FREE</span>
-                                        </div>
-                                    )}
+                    {serviceType === 'store' ? (
+                        /* Express Notice Card for Store Visit */
+                        <div className="relative p-5 rounded-2xl border border-blue-500/20 bg-blue-500/5 transition-all">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                                    <Zap className="w-6 h-6 fill-current" />
                                 </div>
-                                <p className={`text-xs mt-0.5 ${isExpress ? 'text-slate-600' : 'text-muted-foreground'}`}>
-                                    {!showExpress 
-                                        ? (currentHour < 10 ? "Express pickup starts at 10 AM." : "Orders after 4 PM not valid for today.") 
-                                        : (isRepair ? 'Service within 3 hours' : "Pickup within 3 hours")
-                                    }
-                                </p>
-                                {!showExpress && <p className="text-[10px] font-medium text-amber-600 mt-1">Pickup shift ends at 7 PM.</p>}
-                            </div>
-                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isExpress ? 'border-amber-500 bg-amber-500' : 'border-slate-300'}`}>
-                                {isExpress && <CheckCircle className="w-4 h-4 text-white" />}
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-foreground">Priority Store Diagnostics</h4>
+                                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                                        Your slot reserves a dedicated hardware diagnostics engineer. We aim to complete most repairs within 60 minutes of arrival.
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    ) : (
+                        <>
+                            <div className="flex items-center gap-4 py-2">
+                                <div className="flex-1 border-t border-dashed border-gray-300"></div>
+                                <span className="text-muted-foreground font-medium text-xs uppercase">OR</span>
+                                <div className="flex-1 border-t border-dashed border-gray-300"></div>
+                            </div>
+
+                            {/* Express Pickup Option */}
+                            <div
+                                className={`relative p-5 rounded-2xl border-2 transition-all overflow-hidden ${!showExpress ? 'border-dashed border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed' :
+                                    isExpress ? 'border-amber-400 bg-amber-50 shadow-md transform scale-[1.02] cursor-pointer' :
+                                        'border-border bg-card hover:border-amber-200 opacity-90 cursor-pointer'
+                                    }`}
+                                onClick={() => {
+                                    if (!showExpress) return;
+                                    const newState = !isExpress;
+                                    setIsExpress(newState);
+                                    if (newState) setSelectedSlot('');
+                                }}
+                            >
+                                {isExpress && <div className="absolute top-0 right-0 bg-amber-400 text-amber-950 text-[10px] font-bold px-2 py-1 rounded-bl-xl">SELECTED</div>}
+                                {!showExpress && <div className="absolute top-0 right-0 bg-slate-400 text-white text-[10px] font-bold px-2 py-1 rounded-bl-xl">UNAVAILABLE</div>}
+
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isExpress ? 'bg-amber-100 text-amber-600' : !showExpress ? 'bg-slate-200 text-slate-400' : 'bg-slate-100 text-slate-400'}`}>
+                                        <Zap className="w-6 h-6 fill-current" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className={`font-bold ${isExpress ? 'text-slate-900' : !showExpress ? 'text-muted-foreground' : 'text-foreground'}`}>{isRepair ? 'Express Service' : 'Express Pickup'}</h4>
+                                            {!showExpress ? (
+                                                <span className="text-xs font-bold text-slate-400">CLOSED</span>
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-xs ${isExpress ? 'text-slate-500' : 'text-muted-foreground'} line-through`}>₹50</span>
+                                                    <span className="text-sm font-bold text-green-600">FREE</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className={`text-xs mt-0.5 ${isExpress ? 'text-slate-600' : 'text-muted-foreground'}`}>
+                                            {!showExpress 
+                                                ? (currentHour < 10 ? "Express pickup starts at 10 AM." : "Orders after 4 PM not valid for today.") 
+                                                : (isRepair ? 'Service within 3 hours' : "Pickup within 3 hours")
+                                            }
+                                        </p>
+                                        {!showExpress && <p className="text-[10px] font-medium text-amber-600 mt-1">Pickup shift ends at 7 PM.</p>}
+                                    </div>
+                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isExpress ? 'border-amber-500 bg-amber-500' : 'border-slate-300'}`}>
+                                        {isExpress && <CheckCircle className="w-4 h-4 text-white" />}
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 <button
                     onClick={() => setBookingStep('payment')}
                     disabled={isSubmitting || (!selectedSlot && !isExpress)}
-                    className="w-full py-4 text-xl font-bold text-white bg-green-600 rounded-xl shadow-lg hover:bg-green-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 animate-pulse hover:animate-none"
+                    className="w-full py-4 text-xl font-bold text-white bg-blue-600 rounded-xl shadow-lg hover:bg-blue-500 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 shadow-blue-600/10 shadow-blue-600/10"
                 >
-                    Choose Method to Receive Cash <ArrowRight className="w-5 h-5" />
+                    {isRepair 
+                        ? (serviceType === 'store' ? 'Choose Store Payment Method' : 'Choose Doorstep Payment Method') 
+                        : 'Choose Method to Receive Cash'} <ArrowRight className="w-5 h-5" />
                 </button>
                 <p className="text-center text-xs text-muted-foreground pb-8">
                     By confirming, you agree to our Terms of Service
@@ -712,6 +825,89 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
     // -------------------------------------------------------------------------
     // RENDER: STEP 5 - PAYMENT METHOD
     // -------------------------------------------------------------------------
+    if (isRepair) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+                className="max-w-xl mx-auto py-8 space-y-6"
+            >
+                <div className="flex items-center gap-4 mb-4">
+                    <button onClick={() => setBookingStep('schedule')} className="p-2 hover:bg-slate-100 rounded-full dark:hover:bg-slate-800 transition-colors">
+                        <ArrowLeft className="w-6 h-6" />
+                    </button>
+                    <h2 className="text-2xl font-bold">Confirm Booking</h2>
+                </div>
+
+                <div className="space-y-6">
+                    <p className="text-sm text-muted-foreground">
+                        You only pay once your device is successfully repaired and verified by you.
+                    </p>
+
+                    <div className="bg-gradient-to-br from-blue-500/5 to-indigo-500/5 border border-blue-500/20 p-6 rounded-2xl space-y-4 shadow-md relative overflow-hidden">
+                        <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl tracking-wider">
+                            SECURE BOOKING
+                        </div>
+
+                        <div className="flex items-start gap-4">
+                            <div className="p-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl">
+                                <CheckCircle className="w-6 h-6" />
+                            </div>
+                            <div className="flex-1 space-y-1">
+                                <h3 className="font-bold text-lg text-foreground">
+                                    {serviceType === 'store' ? 'Pay After Store Service' : 'Pay After Onsite Service'}
+                                </h3>
+                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                    {serviceType === 'store'
+                                        ? 'Test your device thoroughly at our Care Center diagnostic counter. Pay once you are 100% satisfied with the repair. Accepted modes: UPI, Cards, Cash.'
+                                        : 'Our technician will repair your device right in front of you. Pay only after the successful repair is verified. Accepted modes: Google Pay, PhonePe, Paytm, Cash, or Cards.'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Booking Summary Panel */}
+                    <div className="bg-slate-900/5 dark:bg-white/5 border rounded-2xl p-5 space-y-3">
+                        <h4 className="font-bold text-xs uppercase text-muted-foreground tracking-wider">Booking Summary</h4>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">Device</span>
+                            <span className="font-semibold">{deviceInfo.name}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">Service Type</span>
+                            <span className="font-semibold capitalize">{serviceType} Service</span>
+                        </div>
+                        {serviceType === 'doorstep' ? (
+                            <div className="flex justify-between items-start text-sm">
+                                <span className="text-muted-foreground">Service Address</span>
+                                <span className="font-semibold text-right max-w-[250px] truncate">{address}</span>
+                            </div>
+                        ) : (
+                            <div className="flex justify-between items-start text-sm">
+                                <span className="text-muted-foreground">Store Address</span>
+                                <span className="font-semibold text-right max-w-[250px]">iProduct Care Center, Marathahalli</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between items-center text-sm border-t border-dashed pt-2.5 mt-1 border-border/50">
+                            <span className="text-muted-foreground">Estimated Repair Cost</span>
+                            <span className="font-bold text-lg text-foreground">₹{finalPrice.toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button
+                    onClick={handleConfirmOrder}
+                    disabled={isSubmitting}
+                    className="w-full h-14 text-lg font-bold text-white bg-blue-600 rounded-xl shadow-lg hover:bg-blue-500 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 shadow-blue-600/10 hover:shadow-blue-600/20 animate-pulse hover:animate-none"
+                >
+                    {isSubmitting ? <Loader2 className="animate-spin w-5 h-5" /> : 'Confirm Repair Booking'}
+                </button>
+                <p className="text-center text-xs text-muted-foreground pb-8">
+                    By confirming, you agree to our Terms of Service
+                </p>
+            </motion.div>
+        );
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
@@ -876,7 +1072,7 @@ export default function FinalQuote({ basePrice, answers, deviceInfo, isRepair, u
             <button
                 onClick={handleConfirmOrder}
                 disabled={isSubmitting || (paymentMethod === 'upi' && !upiId) || (paymentMethod === 'bank_transfer' && (!bankAccount || !bankIfsc || !bankAccountName))}
-                className="w-full h-14 text-lg font-bold text-white bg-green-600 rounded-xl shadow-lg hover:bg-green-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 shadow-green-600/10 hover:shadow-green-600/20"
+                className="w-full h-14 text-lg font-bold text-white bg-blue-600 rounded-xl shadow-lg hover:bg-blue-500 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-8 shadow-blue-600/10 hover:shadow-blue-600/20"
             >
                 {isSubmitting ? <Loader2 className="animate-spin w-5 h-5" /> : (isRepair ? 'Confirm Booking' : 'Confirm & Complete Order')}
             </button>

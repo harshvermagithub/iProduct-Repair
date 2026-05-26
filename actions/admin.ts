@@ -457,11 +457,11 @@ export async function assignRider(orderId: string, riderId: string) {
                 <p style="margin: 5px 0;"><b>Executive Contact:</b> ${order.rider.phone}</p>
                 <p style="margin: 5px 0;"><b>Estimated Offer:</b> ₹${order.price}</p>
             </div>
-            <p>They will contact you shortly to coordinate the pickup time at your provided address.</p>
-            <p style="color: #888; font-size: 12px; margin-top: 20px;">Fonzkart Logistics Tracking</p>
+            <p>They will contact you shortly to coordinate the pickup/service time at your provided address.</p>
+            <p style="color: #888; font-size: 12px; margin-top: 20px;">iProduct Repair Logistics Tracking</p>
           </div>
         `;
-        sendSystemEmail(order.user.email, 'Fonzkart: Executive Assigned for Pickup', mailHtml);
+        sendSystemEmail(order.user.email, 'iProduct Repair: Executive/Technician Assigned', mailHtml);
     }
 
     revalidatePath('/admin');

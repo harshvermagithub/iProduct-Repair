@@ -78,10 +78,10 @@ export async function signup(prevState: { error?: string } | null, formData: For
         await transporter.sendMail({
             from: process.env.SMTP_FROM || smtpUser,
             to: email,
-            subject: 'Verify your Fonzkart Account',
+            subject: 'Verify your iProduct Repair Account',
             html: `
               <div style="font-family: sans-serif; max-w-md; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                <h2 style="color: #333;">Welcome to Fonzkart!</h2>
+                <h2 style="color: #333;">Welcome to iProduct Repair!</h2>
                 <p>Please use the following 6-digit OTP to verify your email address and finish signing up:</p>
                 <div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; border-radius: 5px; margin: 20px 0;">
                   ${otp}
@@ -123,22 +123,22 @@ export async function verifyEmailSignup(prevState: { error?: string, success?: s
     await db.clearResetToken(email);
 
     // Send Welcome Email
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.fonzkart.in';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://iproductrepair.com';
     const welcomeHtml = `
       <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-        <h2 style="color: #333;">Welcome to Fonzkart, ${user.name}!</h2>
-        <p>We are absolutely thrilled to welcome you to the Fonzkart family.</p>
-        <p>At Fonzkart, we believe in giving you the fastest, most reliable, and highest-paying platform to sell your used gadgets right from the comfort of your home.</p>
-        <p>Now that your account is officially verified, you are ready to sell your very first device in less than 60 seconds.</p>
+        <h2 style="color: #333;">Welcome to iProduct Repair, ${user.name}!</h2>
+        <p>We are absolutely thrilled to welcome you to the iProduct Repair family.</p>
+        <p>At iProduct Repair, we believe in providing the absolute highest quality doorstep repairs and offering premium certified pre-owned gadgets at unbeatable prices.</p>
+        <p>Now that your account is officially verified, you are ready to book a doorstep repair or purchase your next renewed device instantly.</p>
         
         <div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
-          <a href="${appUrl}/" style="background-color: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Get Exact Value</a>
+          <a href="${appUrl}/" style="background-color: #0071e3; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Explore Services</a>
         </div>
         
         <p style="color: #888; font-size: 13px;">If you have any questions, our support team is always available to help.</p>
       </div>
     `;
-    sendSystemEmail(email, 'Welcome to Fonzkart! 🚀', welcomeHtml);
+    sendSystemEmail(email, 'Welcome to iProduct Repair! 🚀', welcomeHtml);
 
     // Auto login
     await login({ id: user.id, email: user.email, name: user.name, role: 'USER' });
@@ -193,9 +193,9 @@ export async function signin(prevState: { error?: string } | null, formData: For
                 tls: { rejectUnauthorized: false }
             });
             await transporter.sendMail({
-                from: process.env.SMTP_FROM || 'noreply@fonzkart.in',
+                from: process.env.SMTP_FROM || 'noreply@iproductrepair.com',
                 to: email,
-                subject: 'Verify your Fonzkart Account',
+                subject: 'Verify your iProduct Repair Account',
                 html: `<p>Your new verification OTP is: <b>${otp}</b></p>`
             });
         } catch(e) {}
@@ -260,11 +260,11 @@ export async function requestPasswordReset(prevState: { error?: string, success?
         await transporter.sendMail({
             from: process.env.SMTP_FROM || smtpUser,
             to: email,
-            subject: 'Your Password Reset OTP - Fonzkart',
+            subject: 'Your Password Reset OTP - iProduct Repair',
             html: `
               <div style="font-family: sans-serif; max-w-md; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                 <h2 style="color: #333;">Password Reset Verification</h2>
-                <p>You requested to reset your password on Fonzkart. Please use the following 6-digit OTP to verify your identity:</p>
+                <p>You requested to reset your password on iProduct Repair. Please use the following 6-digit OTP to verify your identity:</p>
                 <div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; border-radius: 5px; margin: 20px 0;">
                   ${otp}
                 </div>
@@ -310,3 +310,9 @@ export async function verifyAndResetPassword(prevState: { error?: string, succes
 
     return { success: 'Password reset successfully! You can now login.' };
 }
+
+export async function logout() {
+    const { logout: sessionLogout } = await import('@/lib/session');
+    await sessionLogout();
+}
+
