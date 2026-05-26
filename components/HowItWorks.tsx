@@ -116,7 +116,7 @@ export default function HowItWorks() {
                                     <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-white/10 flex items-center justify-center font-bold text-xs text-blue-500 dark:text-blue-400 shrink-0">3</div>
                                     <div>
                                         <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Doorstep Safe Delivery</h4>
-                                        <p className="text-xs text-slate-500 mt-0.5">Fast delivery with cash-on-gadget flexibility and 100% moneyback protection.</p>
+                                        <p className="text-xs text-slate-500 mt-0.5">Fast delivery with service payment flexibility and 100% moneyback protection.</p>
                                     </div>
                                 </div>
                             </div>

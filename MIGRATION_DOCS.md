@@ -1,6 +1,6 @@
-# Fonzkart — Self-Hosted Migration Documentation
+# iProduct Repair — Self-Hosted Migration Documentation
 
-> **Project:** Fonzkart (Cash-on-Gadgets)
+> **Project:** iProduct Repair (iProduct-Repair)
 > **Date:** April 2026
 > **Author:** Migration executed with Antigravity AI
 > **Status:** ✅ Production-Ready
@@ -25,7 +25,7 @@
 
 ## 1. Overview
 
-Fonzkart was originally deployed across two third-party managed services:
+iProduct Repair was originally deployed across two third-party managed services:
 
 | Layer | Before (Cloud) | After (Self-Hosted) |
 |---|---|---|
@@ -63,7 +63,7 @@ User Browser
 User Browser
     │
     ▼ :3002
-[fonzkart-frontend Docker container]  ← Next.js 16 / Node 20 Alpine
+[iproduct-repair-frontend Docker container]  ← Next.js 16 / Node 20 Alpine
     │
     ├──▶ :5432  [supabase-db]       ← PostgreSQL 15 (Prisma ORM)
     ├──▶ :8081  [supabase-kong]     ← Kong API Gateway
@@ -99,7 +99,7 @@ curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
 | `22` | SSH access |
 | `80` | HTTP / SSL certificate generation |
 | `443` | HTTPS traffic |
-| `3002` | Fonzkart Frontend |
+| `3002` | iProduct Repair Frontend |
 | `8081` | Supabase Kong API |
 | `3001` | Supabase Studio |
 
@@ -217,7 +217,7 @@ docker build --network host \
   --build-arg "NEXT_PUBLIC_SUPABASE_URL=http://localhost:8081" \
   --build-arg "NEXT_PUBLIC_SUPABASE_ANON_KEY=<local-anon-jwt>" \
   --build-arg "NEXT_PUBLIC_APP_URL=http://localhost:3002" \
-  -t fonzkart-frontend .
+  -t iproduct-repair-frontend .
 ```
 
 > **Why `--network host`?** The build connects to the local PostgreSQL container during `prisma migrate deploy`. Host networking allows the builder to reach `localhost:5432`.
@@ -226,14 +226,14 @@ docker build --network host \
 
 ```bash
 docker run -d \
-  --name fonzkart-frontend \
+  --name iproduct-repair-frontend \
   --restart unless-stopped \
   --network host \
   -e PORT=3002 \
   -e SUPABASE_SERVICE_ROLE_KEY=<local-service-role-jwt> \
   -e DATABASE_URL=postgresql://postgres:[CONFIGURED_IN_COOLIFY]@localhost:5432/postgres \
   -e DIRECT_URL=postgresql://postgres:[CONFIGURED_IN_COOLIFY]@localhost:5432/postgres \
-  fonzkart-frontend
+  iproduct-repair-frontend
 ```
 
 > **Why port 3002?** Port 3000 was already occupied by Coolify's internal services on the VPS.
@@ -433,19 +433,19 @@ docker build --network host \
   --build-arg "NEXT_PUBLIC_SUPABASE_URL=http://localhost:8081" \
   --build-arg "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(python3 scripts/gen_jwt.py | grep anon | cut -d' ' -f2)" \
   --build-arg "NEXT_PUBLIC_APP_URL=http://localhost:3002" \
-  -t fonzkart-frontend .
+  -t iproduct-repair-frontend .
 
 # 2. Run
-docker rm -f fonzkart-frontend
+docker rm -f iproduct-repair-frontend
 docker run -d \
-  --name fonzkart-frontend \
+  --name iproduct-repair-frontend \
   --restart unless-stopped \
   --network host \
   -e PORT=3002 \
   -e SUPABASE_SERVICE_ROLE_KEY=$(python3 scripts/gen_jwt.py | grep service_role | cut -d' ' -f2) \
   -e DATABASE_URL="postgresql://postgres:[CONFIGURED_IN_COOLIFY]@localhost:5432/postgres" \
   -e DIRECT_URL="postgresql://postgres:[CONFIGURED_IN_COOLIFY]@localhost:5432/postgres" \
-  fonzkart-frontend
+  iproduct-repair-frontend
 ```
 
 ### Re-run Data Migration (if needed)
@@ -457,7 +457,7 @@ python3 scripts/migrate_from_supabase.py
 
 | Service | URL |
 |---|---|
-| **Fonzkart App** | http://localhost:3002 |
+| **iProduct Repair App** | http://localhost:3002 |
 | **Supabase Studio** | http://localhost:3001 |
 | **Coolify Dashboard** | http://localhost:8000 |
 | **Kong API** | http://localhost:8081 |
@@ -470,7 +470,7 @@ python3 scripts/migrate_from_supabase.py
 
 ```bash
 # Frontend logs
-docker logs -f fonzkart-frontend
+docker logs -f iproduct-repair-frontend
 
 # Supabase DB logs
 docker logs -f supabase-db
@@ -483,7 +483,7 @@ docker logs -f supabase-auth
 
 ```bash
 # Restart just the frontend
-docker restart fonzkart-frontend
+docker restart iproduct-repair-frontend
 
 # Restart entire Supabase stack
 docker compose -f docker-compose.supabase.yml restart
@@ -512,7 +512,7 @@ environment:
   SMTP_PORT: "587"
   SMTP_USER: your@gmail.com
   SMTP_PASS: your_app_password
-  SMTP_SENDER_NAME: Fonzkart
+  SMTP_SENDER_NAME: iProduct Repair
 ```
 3. Restart auth: `docker restart supabase-auth`
 

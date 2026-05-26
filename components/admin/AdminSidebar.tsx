@@ -140,7 +140,7 @@ export default function AdminSidebar({ role = 'SUPER_ADMIN' }: { role?: string }
                             {/* Simplified Icon for Sidebar Top */}
                             <Smartphone className="w-5 h-5" />
                         </div>
-                        <span className={`${isMobileOpen ? 'inline' : isDesktopCollapsed ? 'hidden' : 'hidden lg:inline'} whitespace-nowrap`}>Fonz<span className="text-primary font-black">kart</span></span>
+                        <span className={`${isMobileOpen ? 'inline' : isDesktopCollapsed ? 'hidden' : 'hidden lg:inline'} whitespace-nowrap`}>iProduct<span className="text-primary font-black">Repair</span></span>
                     </Link>
                 </div>
 

@@ -39,10 +39,10 @@ description: Setup and run Coolify locally
    - Open your browser and navigate to `http://localhost:3000`.
    - Follow the initial setup wizard to create an admin account.
 
-6. **Deploy your Cash-on-Gadgets app**
+6. **Deploy your iProduct-Repair app**
    - In the Coolify dashboard, click **Add New Project**.
    - Choose **Git Repository** and provide the path to your local repository:
-     `C:/Users/harsh/OneDrive/Documents/GitHub/Cash-on-Gadgets`.
+     `C:/Users/harsh/OneDrive/Documents/GitHub/iProduct-Repair`.
    - Configure the build settings:
      - **Framework**: Next.js
      - **Build Command**: `npm install && npm run build`
