@@ -324,7 +324,7 @@ export default function RefurbishedStore({ user }: RefurbishedStoreProps) {
                             </div>
                             <button
                                 onClick={() => handleOpenCheckout(product)}
-                                className="px-5 py-2.5 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-slate-100 active:scale-[0.98] transition-all"
+                                className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-black font-extrabold text-xs rounded-xl hover:bg-slate-100 active:scale-[0.98] transition-all"
                             >
                                 Inquire &amp; Buy
                             </button>
@@ -423,7 +423,7 @@ export default function RefurbishedStore({ user }: RefurbishedStoreProps) {
                                             </div>
                                             <button
                                                 onClick={() => setCheckoutStep('pincode')}
-                                                className="px-6 py-3 bg-blue-600 text-slate-900 dark:text-white font-extrabold text-sm rounded-xl hover:bg-blue-500 active:scale-[0.98] transition-all flex items-center gap-2"
+                                                className="px-6 py-3 bg-blue-600 text-white font-extrabold text-sm rounded-xl hover:bg-blue-500 active:scale-[0.98] transition-all flex items-center gap-2"
                                             >
                                                 Confirm Customization <ArrowRight className="w-4 h-4" />
                                             </button>
@@ -455,7 +455,7 @@ export default function RefurbishedStore({ user }: RefurbishedStoreProps) {
                                             <button
                                                 onClick={handleCheckPincode}
                                                 disabled={pincode.length !== 6 || isPincodeChecking}
-                                                className="w-full h-12 bg-blue-600 disabled:opacity-50 text-slate-900 dark:text-white font-bold text-xs rounded-xl hover:bg-blue-500 transition-colors flex items-center justify-center gap-2"
+                                                className="w-full h-12 bg-blue-600 disabled:opacity-50 text-white font-bold text-xs rounded-xl hover:bg-blue-500 transition-colors flex items-center justify-center gap-2"
                                             >
                                                 {isPincodeChecking ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Check Availability'}
                                             </button>
@@ -539,7 +539,7 @@ export default function RefurbishedStore({ user }: RefurbishedStoreProps) {
                                         <button
                                             onClick={handlePlaceOrder}
                                             disabled={isSubmitting || !name || phone.length < 10 || !address}
-                                            className="w-full h-14 bg-blue-600 disabled:opacity-50 text-slate-900 dark:text-white font-extrabold text-sm rounded-xl hover:bg-blue-500 shadow-lg shadow-blue-600/10 transition-all flex items-center justify-center gap-2 mt-6"
+                                            className="w-full h-14 bg-blue-600 disabled:opacity-50 text-white font-extrabold text-sm rounded-xl hover:bg-blue-500 shadow-lg shadow-blue-600/10 transition-all flex items-center justify-center gap-2 mt-6"
                                         >
                                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Wallet className="w-5 h-5" /> Book Doorstep Delivery &amp; Inspection</>}
                                         </button>
@@ -566,7 +566,7 @@ export default function RefurbishedStore({ user }: RefurbishedStoreProps) {
                                                     setSelectedProduct(null);
                                                     router.push('/orders');
                                                 }}
-                                                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-slate-900 dark:text-white font-bold text-xs rounded-xl shadow-lg transition-all"
+                                                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all"
                                             >
                                                 Track Delivery Status →
                                             </button>
