@@ -10,7 +10,7 @@ export default async function ShopPage() {
     const session = await getSession();
 
     return (
-        <div className="min-h-screen bg-black pt-8 pb-16">
+        <div className="min-h-screen bg-slate-50 dark:bg-black pt-8 pb-16">
             <RefurbishedStore user={session?.user} />
         </div>
     );
